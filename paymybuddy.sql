@@ -97,9 +97,9 @@ INSERT INTO `paymybuddy`.`user`
 `money_available`,
 `password`)
 VALUES
-('emailbuddy',
-'firstNamebuddy',
-'lastNamebuddy',
+('emailTest',
+'firstNameTest',
+'lastNameTest',
 '0',
 '$2y$10$0.JBClw5A2IoueLiWfMQluCPesKq0ykyZEOzu7ZEv8ElHnvrxdP.i');
 COMMIT;
@@ -109,8 +109,8 @@ INSERT INTO `paymybuddy`.`bank_account`
 (`iban`,
 `description`)
 VALUES
-('ibanbuddy',
-'descriptionbuddy');
+('ibanTest',
+'descriptionTest');
 COMMIT;
 
 START TRANSACTION;
@@ -121,9 +121,9 @@ INSERT INTO `paymybuddy`.`transaction`
 `description`,
 `user_email_receiver`)
 VALUES
-('emailbuddy',
+('emailTest',
 10,
 '2001/01/01',
-'descriptionbuddy',
+'descriptionTest',
 'userEmailReceiver');
 COMMIT;
