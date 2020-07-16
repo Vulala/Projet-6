@@ -1,4 +1,4 @@
-package com.paymybuddy;
+package com.paymybuddy.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
@@ -12,8 +12,9 @@ import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.paymybuddy.model.User;
@@ -21,51 +22,35 @@ import com.paymybuddy.repository.UserRepository;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-public class UserTest {
+@AutoConfigureTestDatabase(replace = Replace.NONE)
+public class UserIT {
 
 	@Autowired
 	private UserRepository userRepository;
 
-	@Autowired
-	private TestEntityManager testEntityManager;
-
 	@Test
 	public void injectedComponentsAreRightlySetUp() {
 		assertThat(userRepository).isNotNull();
-		assertThat(testEntityManager).isNotNull();
 	}
 
 	@Test
 	public void givenGettingAnUser_whenFindById_thenItReturnTheRightUser() {
-		// ARRANGE
-		User user = new User("emailFindById", "lastNameFindById", "firstNameFindById", "passwordNotEncrypted", 0, null,
-				null);
-		testEntityManager.persist(user);
-
 		// ACT
-		Optional<User> result = userRepository.findById(user.getEmail());
+		Optional<User> result = userRepository.findById("emailTest");
 
 		// ASSERT
 		assertTrue(result.isPresent());
-		assertEquals(user.getEmail(), result.get().getEmail());
-		assertEquals(user.getFirstName(), result.get().getFirstName());
+		assertEquals("emailTest", result.get().getEmail());
+		assertEquals("firstNameTest", result.get().getFirstName());
 	}
 
 	@Test
 	public void givenGettingUsers_whenFindAll_thenItReturnAllUsers() {
-		// ARRANGE
-		User user = new User("emailFindAll", "lastNameFindAll", "firstNameFindAll", "passwordNotEncrypted", 0, null,
-				null);
-		User user2 = new User("emailFindAll2", "lastNameFindAll2", "firstNameFindAll2", "passwordNotEncrypted2", 02,
-				null, null);
-		testEntityManager.persist(user);
-		testEntityManager.persist(user2);
-
 		// ACT
 		Iterable<User> result = userRepository.findAll();
 
 		// ASSERT
-		assertThat(result).size().isBetween(2, 2);
+		assertThat(result).size().isBetween(1, 1);
 	}
 
 	@Test
@@ -83,30 +68,22 @@ public class UserTest {
 
 	@Test
 	public void givenUpdatingAnUser_whenFindSetSave_thenItUpdateTheUser() {
-		// ARRANGE
-		User user = new User("emailUpdate", "lastNameUpdate", "firstNameUpdate", "passwordNotEncrypted", 0, null, null);
-		testEntityManager.persist(user);
-
 		// ACT
-		Optional<User> userToUpdate = userRepository.findById(user.getEmail());
+		Optional<User> userToUpdate = userRepository.findById("emailTest");
 		userToUpdate.get().setFirstName("firstNameUpdated");
 		userRepository.save(userToUpdate.get());
 		Optional<User> result = userRepository.findById(userToUpdate.get().getEmail());
-		
-		// ASSERT
-		assertEquals(userToUpdate.get().getFirstName(), result.get().getFirstName());
 
+		// ASSERT
+		assertEquals(userToUpdate.get().getEmail(), result.get().getEmail());
+		assertEquals(userToUpdate.get().getFirstName(), result.get().getFirstName());
 	}
 
 	@Test
 	public void givenDeletingAnUser_whenDelete_thenItDeleteTheUser() {
-		// ARRANGE
-		User user = new User("emailDelete", "lastNameDelete", "firstNameDelete", "passwordNotEncrypted", 0, null, null);
-		testEntityManager.persist(user);
-
 		// ACT
-		userRepository.deleteById(user.getEmail());
-		Optional<User> result = userRepository.findById(user.getEmail());
+		userRepository.deleteById("emailTest");
+		Optional<User> result = userRepository.findById("emailTest");
 
 		// ASSERT
 		assertThat(result).isEmpty();
@@ -115,11 +92,6 @@ public class UserTest {
 
 	@Test
 	public void givenGettingAWrongUser_whenFindById_thenItThrowsAnException() {
-		// ARRANGE
-		User user = new User("emailFindById", "lastNameFindById", "firstNameFindById", "passwordNotEncrypted", 0, null,
-				null);
-		testEntityManager.persist(user);
-
 		// ACT
 		Optional<User> result = userRepository.findById("Void");
 
@@ -132,9 +104,9 @@ public class UserTest {
 	public void givenSettingANewUser_whenFindById_thenTheUserIsSavedAndThePasswordIsEncrypted() {
 		// ARRANGE
 		User user = new User("emailSave", "lastNameSave", "firstNameSave", "passwordNotEncrypted", 0, null, null);
-		testEntityManager.persist(user);
 
 		// ACT
+		userRepository.save(user);
 		Optional<User> result = userRepository.findById(user.getEmail());
 
 		// ASSERT

@@ -3,16 +3,15 @@ package com.paymybuddy.model;
 import java.util.List;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 @Entity
 public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	private String email;
 	private String lastName;
 	private String firstName;
@@ -31,7 +30,7 @@ public class User {
 		this.email = email;
 		this.lastName = lastName;
 		this.firstName = firstName;
-		this.password = password;
+		this.password = BCrypt.hashpw(password, BCrypt.gensalt(10));
 		this.moneyAvailable = moneyAvailable;
 		this.bankAccount = bankAccount;
 		this.transaction = transaction;
@@ -66,7 +65,8 @@ public class User {
 	}
 
 	public void setPassword(String password) {
-		this.password = password;
+		String newPasswordToEncrypt = BCrypt.hashpw(password, BCrypt.gensalt(10));
+		this.password = newPasswordToEncrypt;
 	}
 
 	public int getMoneyAvailable() {

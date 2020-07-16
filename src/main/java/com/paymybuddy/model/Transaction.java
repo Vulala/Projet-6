@@ -3,15 +3,12 @@ package com.paymybuddy.model;
 import java.sql.Date;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
 public class Transaction {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	private String userEmail;
 	private String userEmailReceiver;
 	private Date date;

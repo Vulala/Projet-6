@@ -12,6 +12,6 @@ import com.paymybuddy.model.BankAccount;
  */
 
 @RepositoryRestResource(collectionResourceRel = "bankAccount", path = "bankAccount")
-public interface BankAccountRepository extends CrudRepository<BankAccount, Long> {
+public interface BankAccountRepository extends CrudRepository<BankAccount, String> {
 
 }

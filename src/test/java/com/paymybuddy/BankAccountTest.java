@@ -1,4 +1,4 @@
-package com.paymybuddy.integration;
+package com.paymybuddy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
@@ -12,9 +12,8 @@ import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.paymybuddy.model.BankAccount;
@@ -22,35 +21,48 @@ import com.paymybuddy.repository.BankAccountRepository;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = Replace.NONE)
-public class BankAccountIT {
+public class BankAccountTest {
 
 	@Autowired
 	private BankAccountRepository bankAccountRepository;
 
+	@Autowired
+	private TestEntityManager testEntityManager;
+
 	@Test
 	public void injectedComponentsAreRightlySetUp() {
 		assertThat(bankAccountRepository).isNotNull();
+		assertThat(testEntityManager).isNotNull();
 	}
 
 	@Test
 	public void givenGettingABankAccount_whenFindById_thenItReturnTheRightBankAccount() {
+		// ARRANGE
+		BankAccount bankAccount = new BankAccount("IBANFindById", "descriptionFindById");
+		testEntityManager.persist(bankAccount);
+
 		// ACT
-		Optional<BankAccount> result = bankAccountRepository.findById("ibanTest");
+		Optional<BankAccount> result = bankAccountRepository.findById(bankAccount.getIBAN());
 
 		// ASSERT
 		assertTrue(result.isPresent());
-		assertEquals("ibanTest", result.get().getIBAN());
-		assertEquals("descriptionTest", result.get().getDescription());
+		assertEquals(bankAccount.getIBAN(), result.get().getIBAN());
+		assertEquals(bankAccount.getDescription(), result.get().getDescription());
 	}
 
 	@Test
 	public void givenGettingBankAccounts_whenFindAll_thenItReturnAllBankAccounts() {
+		// ARRANGE
+		BankAccount bankAccount = new BankAccount("IBANFindAll", "descriptionFindAll");
+		BankAccount bankAccount2 = new BankAccount("IBANFindAll2", "descriptionFindAll2");
+		testEntityManager.persist(bankAccount);
+		testEntityManager.persist(bankAccount2);
+
 		// ACT
 		Iterable<BankAccount> result = bankAccountRepository.findAll();
 
 		// ASSERT
-		assertThat(result).size().isBetween(1, 1);
+		assertThat(result).size().isBetween(2, 2);
 	}
 
 	@Test
@@ -67,11 +79,15 @@ public class BankAccountIT {
 
 	@Test
 	public void givenUpdatingABankAccount_whenFindSetSave_thenItUpdateTheBankAccount() {
+		// ARRANGE
+		BankAccount bankAccount = new BankAccount("IBANUpdate", "descriptionUpdate");
+		testEntityManager.persist(bankAccount);
+
 		// ACT
-		Optional<BankAccount> bankAccountToUpdate = bankAccountRepository.findById("ibanTest");
+		Optional<BankAccount> bankAccountToUpdate = bankAccountRepository.findById(bankAccount.getIBAN());
 		bankAccountToUpdate.get().setDescription("descriptionUpdated");
 		bankAccountRepository.save(bankAccountToUpdate.get());
-		Optional<BankAccount> result = bankAccountRepository.findById(bankAccountToUpdate.get().getIBAN());
+		Optional<BankAccount> result = bankAccountRepository.findById(bankAccount.getIBAN());
 
 		// ASSERT
 		assertEquals(bankAccountToUpdate.get().getIBAN(), result.get().getIBAN());
@@ -80,9 +96,13 @@ public class BankAccountIT {
 
 	@Test
 	public void givenDeletingABankAccount_whenDelete_thenItDeleteTheBankAccount() {
+		// ARRANGE
+		BankAccount bankAccount = new BankAccount("IBANDelete", "descriptionDelete");
+		testEntityManager.persist(bankAccount);
+
 		// ACT
-		bankAccountRepository.deleteById("ibanTest");
-		Optional<BankAccount> result = bankAccountRepository.findById("ibanTest");
+		bankAccountRepository.deleteById(bankAccount.getIBAN());
+		Optional<BankAccount> result = bankAccountRepository.findById(bankAccount.getIBAN());
 
 		// ASSERT
 		assertThat(result).isEmpty();
@@ -91,6 +111,10 @@ public class BankAccountIT {
 
 	@Test
 	public void givenGettingAWrongBankAccount_whenFindById_thenItThrowsAnException() {
+		// ARRANGE
+		BankAccount bankAccount = new BankAccount("IBANFindById", "descriptionFindById");
+		testEntityManager.persist(bankAccount);
+
 		// ACT
 		Optional<BankAccount> result = bankAccountRepository.findById("Void");
 
