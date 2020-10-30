@@ -49,6 +49,7 @@ public class TransactionTest {
 		// ASSERT
 		assertTrue(result.isPresent());
 		assertEquals(transaction.getUserEmail(), result.get().getUserEmail());
+		assertEquals(transaction.getAmount(), result.get().getAmount());
 		assertEquals(transaction.getDescription(), result.get().getDescription());
 	}
 
@@ -82,6 +83,8 @@ public class TransactionTest {
 
 		// ASSERT
 		assertEquals(transaction.getUserEmail(), result.get().getUserEmail());
+		assertEquals(transaction.getDate(), result.get().getDate());
+		assertEquals(transaction.getUserEmailReceiver(), result.get().getUserEmailReceiver());
 	}
 
 	@Test
@@ -95,6 +98,9 @@ public class TransactionTest {
 		// ACT
 		Optional<Transaction> transactionToUpdate = transactionRepository.findById(transaction.getUserEmail());
 		transactionToUpdate.get().setDescription("descriptionUpdated");
+		transactionToUpdate.get().setAmount(20);
+		transactionToUpdate.get().setDate(date);
+		transactionToUpdate.get().setUserEmailReceiver("userEmailReceiverUpdated");
 		transactionRepository.save(transactionToUpdate.get());
 		Optional<Transaction> result = transactionRepository.findById(transaction.getUserEmail());
 

@@ -13,7 +13,7 @@
 	<groupId>com</groupId>
 	<artifactId>paymybuddy</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Project05 - Spring Boot JPA</name>
+	<name>Project06</name>
 	<description>Pay My Buddy - We make moving your money easy!</description>
 
 	<properties>

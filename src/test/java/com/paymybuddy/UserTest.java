@@ -78,7 +78,11 @@ public class UserTest {
 		Optional<User> result = userRepository.findById(user.getEmail());
 
 		// ASSERT
+		assertEquals(result.isPresent(), true);
 		assertEquals(user.getEmail(), result.get().getEmail());
+		assertEquals(user.getLastName(), result.get().getLastName());
+		assertEquals(user.getBankAccount(), result.get().getBankAccount());
+		assertEquals(user.getTransaction(), result.get().getTransaction());
 	}
 
 	@Test
@@ -90,12 +94,17 @@ public class UserTest {
 		// ACT
 		Optional<User> userToUpdate = userRepository.findById(user.getEmail());
 		userToUpdate.get().setFirstName("firstNameUpdated");
+		userToUpdate.get().setLastName("lastNameUpdated");
+		userToUpdate.get().setPassword("passwordUpdated");
+		userToUpdate.get().setMoneyAvailable(10);
+		userToUpdate.get().setBankAccount(null);
+		userToUpdate.get().setTransaction(null);
 		userRepository.save(userToUpdate.get());
-		Optional<User> result = userRepository.findById(userToUpdate.get().getEmail());
-		
+		Optional<User> result = userRepository.findById(user.getEmail());
+
 		// ASSERT
 		assertEquals(userToUpdate.get().getFirstName(), result.get().getFirstName());
-
+		assertEquals(userToUpdate.get().getMoneyAvailable(), result.get().getMoneyAvailable());
 	}
 
 	@Test
