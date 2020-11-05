@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 public class User {
 
 	@Id
+	private int id;
 	private String email;
 	private String lastName;
 	private String firstName;
@@ -34,6 +35,14 @@ public class User {
 		this.moneyAvailable = moneyAvailable;
 		this.bankAccount = bankAccount;
 		this.transaction = transaction;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getEmail() {
@@ -95,9 +104,9 @@ public class User {
 
 	@Override
 	public String toString() {
-		return "User [email=" + email + ", lastName=" + lastName + ", firstName=" + firstName + ", password=" + password
-				+ ", moneyAvailable=" + moneyAvailable + ", bankAccount=" + bankAccount + ", transaction=" + transaction
-				+ "]";
+		return "User [id=" + id + ", email=" + email + ", lastName=" + lastName + ", firstName=" + firstName
+				+ ", password=" + password + ", moneyAvailable=" + moneyAvailable + ", bankAccount=" + bankAccount
+				+ ", transaction=" + transaction + "]";
 	}
 
 }

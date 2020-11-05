@@ -1,5 +1,7 @@
 package com.paymybuddy.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
@@ -12,6 +14,7 @@ import com.paymybuddy.model.BankAccount;
  */
 
 @RepositoryRestResource(collectionResourceRel = "bankAccount", path = "bankAccount")
-public interface BankAccountRepository extends CrudRepository<BankAccount, String> {
+public interface BankAccountRepository extends CrudRepository<BankAccount, Integer> {
 
+	Optional<BankAccount> findByIBAN(String IBAN);
 }

@@ -42,7 +42,7 @@ public class BankAccountTest {
 		testEntityManager.persist(bankAccount);
 
 		// ACT
-		Optional<BankAccount> result = bankAccountRepository.findById(bankAccount.getIBAN());
+		Optional<BankAccount> result = bankAccountRepository.findByIBAN(bankAccount.getIBAN());
 
 		// ASSERT
 		assertTrue(result.isPresent());
@@ -55,6 +55,7 @@ public class BankAccountTest {
 		// ARRANGE
 		BankAccount bankAccount = new BankAccount("IBANFindAll", "descriptionFindAll");
 		BankAccount bankAccount2 = new BankAccount("IBANFindAll2", "descriptionFindAll2");
+		bankAccount2.setId(2);
 		testEntityManager.persist(bankAccount);
 		testEntityManager.persist(bankAccount2);
 
@@ -71,7 +72,7 @@ public class BankAccountTest {
 		BankAccount bankAccount = new BankAccount("IBANSave", "descriptionSave");
 		// ACT
 		bankAccountRepository.save(bankAccount);
-		Optional<BankAccount> result = bankAccountRepository.findById(bankAccount.getIBAN());
+		Optional<BankAccount> result = bankAccountRepository.findByIBAN(bankAccount.getIBAN());
 
 		// ASSERT
 		assertEquals(bankAccount.getIBAN(), result.get().getIBAN());
@@ -84,10 +85,10 @@ public class BankAccountTest {
 		testEntityManager.persist(bankAccount);
 
 		// ACT
-		Optional<BankAccount> bankAccountToUpdate = bankAccountRepository.findById(bankAccount.getIBAN());
+		Optional<BankAccount> bankAccountToUpdate = bankAccountRepository.findByIBAN(bankAccount.getIBAN());
 		bankAccountToUpdate.get().setDescription("descriptionUpdated");
 		bankAccountRepository.save(bankAccountToUpdate.get());
-		Optional<BankAccount> result = bankAccountRepository.findById(bankAccount.getIBAN());
+		Optional<BankAccount> result = bankAccountRepository.findByIBAN(bankAccount.getIBAN());
 
 		// ASSERT
 		assertEquals(bankAccountToUpdate.get().getIBAN(), result.get().getIBAN());
@@ -98,11 +99,12 @@ public class BankAccountTest {
 	public void givenDeletingABankAccount_whenDelete_thenItDeleteTheBankAccount() {
 		// ARRANGE
 		BankAccount bankAccount = new BankAccount("IBANDelete", "descriptionDelete");
+		bankAccount.setId(1);
 		testEntityManager.persist(bankAccount);
 
 		// ACT
-		bankAccountRepository.deleteById(bankAccount.getIBAN());
-		Optional<BankAccount> result = bankAccountRepository.findById(bankAccount.getIBAN());
+		bankAccountRepository.deleteById(bankAccount.getId());
+		Optional<BankAccount> result = bankAccountRepository.findById(bankAccount.getId());
 
 		// ASSERT
 		assertThat(result).isEmpty();
@@ -116,7 +118,7 @@ public class BankAccountTest {
 		testEntityManager.persist(bankAccount);
 
 		// ACT
-		Optional<BankAccount> result = bankAccountRepository.findById("Void");
+		Optional<BankAccount> result = bankAccountRepository.findByIBAN("Void");
 
 		// ASSERT
 		assertFalse(result.isPresent());

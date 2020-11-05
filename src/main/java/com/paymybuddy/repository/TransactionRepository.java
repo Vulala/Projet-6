@@ -1,5 +1,7 @@
 package com.paymybuddy.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
@@ -12,6 +14,7 @@ import com.paymybuddy.model.Transaction;
  */
 
 @RepositoryRestResource(collectionResourceRel = "transaction", path = "transaction")
-public interface TransactionRepository extends CrudRepository<Transaction, String> {
+public interface TransactionRepository extends CrudRepository<Transaction, Integer> {
 
+	Optional<Transaction> findByUserEmail(String userEmail);
 }

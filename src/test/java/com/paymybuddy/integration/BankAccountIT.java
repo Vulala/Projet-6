@@ -36,7 +36,7 @@ public class BankAccountIT {
 	@Test
 	public void givenGettingABankAccount_whenFindById_thenItReturnTheRightBankAccount() {
 		// ACT
-		Optional<BankAccount> result = bankAccountRepository.findById("ibanTest");
+		Optional<BankAccount> result = bankAccountRepository.findByIBAN("ibanTest");
 
 		// ASSERT
 		assertTrue(result.isPresent());
@@ -59,7 +59,7 @@ public class BankAccountIT {
 		BankAccount bankAccount = new BankAccount("IBANSave", "descriptionSave");
 		// ACT
 		bankAccountRepository.save(bankAccount);
-		Optional<BankAccount> result = bankAccountRepository.findById(bankAccount.getIBAN());
+		Optional<BankAccount> result = bankAccountRepository.findByIBAN(bankAccount.getIBAN());
 
 		// ASSERT
 		assertEquals(bankAccount.getIBAN(), result.get().getIBAN());
@@ -68,10 +68,10 @@ public class BankAccountIT {
 	@Test
 	public void givenUpdatingABankAccount_whenFindSetSave_thenItUpdateTheBankAccount() {
 		// ACT
-		Optional<BankAccount> bankAccountToUpdate = bankAccountRepository.findById("ibanTest");
+		Optional<BankAccount> bankAccountToUpdate = bankAccountRepository.findByIBAN("ibanTest");
 		bankAccountToUpdate.get().setDescription("descriptionUpdated");
 		bankAccountRepository.save(bankAccountToUpdate.get());
-		Optional<BankAccount> result = bankAccountRepository.findById(bankAccountToUpdate.get().getIBAN());
+		Optional<BankAccount> result = bankAccountRepository.findByIBAN(bankAccountToUpdate.get().getIBAN());
 
 		// ASSERT
 		assertEquals(bankAccountToUpdate.get().getIBAN(), result.get().getIBAN());
@@ -81,8 +81,8 @@ public class BankAccountIT {
 	@Test
 	public void givenDeletingABankAccount_whenDelete_thenItDeleteTheBankAccount() {
 		// ACT
-		bankAccountRepository.deleteById("ibanTest");
-		Optional<BankAccount> result = bankAccountRepository.findById("ibanTest");
+		bankAccountRepository.deleteById(1);
+		Optional<BankAccount> result = bankAccountRepository.findByIBAN("ibanTest");
 
 		// ASSERT
 		assertThat(result).isEmpty();
@@ -92,7 +92,7 @@ public class BankAccountIT {
 	@Test
 	public void givenGettingAWrongBankAccount_whenFindById_thenItThrowsAnException() {
 		// ACT
-		Optional<BankAccount> result = bankAccountRepository.findById("Void");
+		Optional<BankAccount> result = bankAccountRepository.findByIBAN("Void");
 
 		// ASSERT
 		assertFalse(result.isPresent());

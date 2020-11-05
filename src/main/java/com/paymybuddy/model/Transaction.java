@@ -9,6 +9,7 @@ import javax.persistence.Id;
 public class Transaction {
 
 	@Id
+	private int id;
 	private String userEmail;
 	private String userEmailReceiver;
 	private Date date;
@@ -24,6 +25,14 @@ public class Transaction {
 		this.date = date;
 		this.description = description;
 		this.amount = amount;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getUserEmail() {
@@ -68,8 +77,8 @@ public class Transaction {
 
 	@Override
 	public String toString() {
-		return "Transaction [userEmail=" + userEmail + ", userEmailReceiver=" + userEmailReceiver + ", date=" + date
-				+ ", description=" + description + ", amount=" + amount + "]";
+		return "Transaction [id=" + id + ", userEmail=" + userEmail + ", userEmailReceiver=" + userEmailReceiver
+				+ ", date=" + date + ", description=" + description + ", amount=" + amount + "]";
 	}
 
 }

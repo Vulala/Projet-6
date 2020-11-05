@@ -36,9 +36,10 @@ public class UserIT {
 	@Test
 	public void givenGettingAnUser_whenFindById_thenItReturnTheRightUser() {
 		// ACT
-		Optional<User> result = userRepository.findById("emailTest");
+		Optional<User> result = userRepository.findByEmail("emailTest");
 
 		// ASSERT
+		System.out.println(result.get().toString());
 		assertTrue(result.isPresent());
 		assertEquals("emailTest", result.get().getEmail());
 		assertEquals("firstNameTest", result.get().getFirstName());
@@ -60,7 +61,7 @@ public class UserIT {
 
 		// ACT
 		userRepository.save(user);
-		Optional<User> result = userRepository.findById(user.getEmail());
+		Optional<User> result = userRepository.findByEmail(user.getEmail());
 
 		// ASSERT
 		assertEquals(user.getEmail(), result.get().getEmail());
@@ -69,10 +70,10 @@ public class UserIT {
 	@Test
 	public void givenUpdatingAnUser_whenFindSetSave_thenItUpdateTheUser() {
 		// ACT
-		Optional<User> userToUpdate = userRepository.findById("emailTest");
+		Optional<User> userToUpdate = userRepository.findByEmail("emailTest");
 		userToUpdate.get().setFirstName("firstNameUpdated");
 		userRepository.save(userToUpdate.get());
-		Optional<User> result = userRepository.findById(userToUpdate.get().getEmail());
+		Optional<User> result = userRepository.findByEmail(userToUpdate.get().getEmail());
 
 		// ASSERT
 		assertEquals(userToUpdate.get().getEmail(), result.get().getEmail());
@@ -82,8 +83,8 @@ public class UserIT {
 	@Test
 	public void givenDeletingAnUser_whenDelete_thenItDeleteTheUser() {
 		// ACT
-		userRepository.deleteById("emailTest");
-		Optional<User> result = userRepository.findById("emailTest");
+		userRepository.deleteById(1);
+		Optional<User> result = userRepository.findByEmail("emailTest");
 
 		// ASSERT
 		assertThat(result).isEmpty();
@@ -93,7 +94,7 @@ public class UserIT {
 	@Test
 	public void givenGettingAWrongUser_whenFindById_thenItThrowsAnException() {
 		// ACT
-		Optional<User> result = userRepository.findById("Void");
+		Optional<User> result = userRepository.findByEmail("Void");
 
 		// ASSERT
 		assertFalse(result.isPresent());
@@ -107,7 +108,7 @@ public class UserIT {
 
 		// ACT
 		userRepository.save(user);
-		Optional<User> result = userRepository.findById(user.getEmail());
+		Optional<User> result = userRepository.findByEmail(user.getEmail());
 
 		// ASSERT
 		assertEquals(user.getPassword(), result.get().getPassword());

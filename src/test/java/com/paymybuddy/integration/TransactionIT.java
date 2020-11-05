@@ -36,7 +36,7 @@ public class TransactionIT {
 	@Test
 	public void givenGettingATransaction_whenFindById_thenItReturnTheRightTransaction() {
 		// ACT
-		Optional<Transaction> result = transactionRepository.findById("emailTest");
+		Optional<Transaction> result = transactionRepository.findByUserEmail("emailTest");
 
 		// ASSERT
 		assertTrue(result.isPresent());
@@ -61,7 +61,7 @@ public class TransactionIT {
 				10);
 		// ACT
 		transactionRepository.save(transaction);
-		Optional<Transaction> result = transactionRepository.findById(transaction.getUserEmail());
+		Optional<Transaction> result = transactionRepository.findByUserEmail(transaction.getUserEmail());
 
 		// ASSERT
 		assertEquals(transaction.getUserEmail(), result.get().getUserEmail());
@@ -70,10 +70,10 @@ public class TransactionIT {
 	@Test
 	public void givenUpdatingATransaction_whenFindSetSave_thenItUpdateTheTransaction() {
 		// ACT
-		Optional<Transaction> transactionToUpdate = transactionRepository.findById("emailTest");
+		Optional<Transaction> transactionToUpdate = transactionRepository.findByUserEmail("emailTest");
 		transactionToUpdate.get().setDescription("descriptionUpdated");
 		transactionRepository.save(transactionToUpdate.get());
-		Optional<Transaction> result = transactionRepository.findById(transactionToUpdate.get().getUserEmail());
+		Optional<Transaction> result = transactionRepository.findByUserEmail(transactionToUpdate.get().getUserEmail());
 
 		// ASSERT
 		assertEquals(transactionToUpdate.get().getUserEmail(), result.get().getUserEmail());
@@ -83,8 +83,8 @@ public class TransactionIT {
 	@Test
 	public void givenDeletingATransaction_whenDelete_thenItDeleteTheTransaction() {
 		// ACT
-		transactionRepository.deleteById("emailTest");
-		Optional<Transaction> result = transactionRepository.findById("emailTest");
+		transactionRepository.deleteById(1);
+		Optional<Transaction> result = transactionRepository.findByUserEmail("emailTest");
 
 		// ASSERT
 		assertThat(result).isEmpty();
@@ -94,7 +94,7 @@ public class TransactionIT {
 	@Test
 	public void givenGettingAWrongTransaction_whenFindById_thenItThrowsAnException() {
 		// ACT
-		Optional<Transaction> result = transactionRepository.findById("Void");
+		Optional<Transaction> result = transactionRepository.findByUserEmail("Void");
 
 		// ASSERT
 		assertFalse(result.isPresent());

@@ -44,7 +44,7 @@ public class TransactionTest {
 		testEntityManager.persist(transaction);
 
 		// ACT
-		Optional<Transaction> result = transactionRepository.findById(transaction.getUserEmail());
+		Optional<Transaction> result = transactionRepository.findByUserEmail(transaction.getUserEmail());
 
 		// ASSERT
 		assertTrue(result.isPresent());
@@ -61,6 +61,7 @@ public class TransactionTest {
 				"descriptionFindAll", 10);
 		Transaction transaction2 = new Transaction("userEmailFindAll2", "userEmailReceiverFindAll2", date,
 				"descriptionFindAll2", 10);
+		transaction2.setId(2);
 		testEntityManager.persist(transaction);
 		testEntityManager.persist(transaction2);
 
@@ -79,7 +80,7 @@ public class TransactionTest {
 				10);
 		// ACT
 		transactionRepository.save(transaction);
-		Optional<Transaction> result = transactionRepository.findById(transaction.getUserEmail());
+		Optional<Transaction> result = transactionRepository.findByUserEmail(transaction.getUserEmail());
 
 		// ASSERT
 		assertEquals(transaction.getUserEmail(), result.get().getUserEmail());
@@ -96,13 +97,13 @@ public class TransactionTest {
 		testEntityManager.persist(transaction);
 
 		// ACT
-		Optional<Transaction> transactionToUpdate = transactionRepository.findById(transaction.getUserEmail());
+		Optional<Transaction> transactionToUpdate = transactionRepository.findByUserEmail(transaction.getUserEmail());
 		transactionToUpdate.get().setDescription("descriptionUpdated");
 		transactionToUpdate.get().setAmount(20);
 		transactionToUpdate.get().setDate(date);
 		transactionToUpdate.get().setUserEmailReceiver("userEmailReceiverUpdated");
 		transactionRepository.save(transactionToUpdate.get());
-		Optional<Transaction> result = transactionRepository.findById(transaction.getUserEmail());
+		Optional<Transaction> result = transactionRepository.findByUserEmail(transaction.getUserEmail());
 
 		// ASSERT
 		assertEquals(transactionToUpdate.get().getUserEmail(), result.get().getUserEmail());
@@ -115,11 +116,12 @@ public class TransactionTest {
 		java.sql.Date date = new java.sql.Date(0);
 		Transaction transaction = new Transaction("userEmailDelete", "userEmailReceiverDelete", date,
 				"descriptionDelete", 10);
+		transaction.setId(1);
 		testEntityManager.persist(transaction);
 
 		// ACT
-		transactionRepository.deleteById(transaction.getUserEmail());
-		Optional<Transaction> result = transactionRepository.findById(transaction.getUserEmail());
+		transactionRepository.deleteById(transaction.getId());
+		Optional<Transaction> result = transactionRepository.findByUserEmail(transaction.getUserEmail());
 
 		// ASSERT
 		assertThat(result).isEmpty();
@@ -135,7 +137,7 @@ public class TransactionTest {
 		testEntityManager.persist(transaction);
 
 		// ACT
-		Optional<Transaction> result = transactionRepository.findById("Void");
+		Optional<Transaction> result = transactionRepository.findByUserEmail("Void");
 
 		// ASSERT
 		assertFalse(result.isPresent());

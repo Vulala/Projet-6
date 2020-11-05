@@ -15,11 +15,11 @@ import com.paymybuddy.model.User;
  * It implements the {@link UserDetails} interface.
  */
 
-public class UserPricipal implements UserDetails {
+public class UserPrincipal implements UserDetails {
 
 	private User user;
 
-	public UserPricipal(User user) {
+	public UserPrincipal(User user) {
 		super();
 		this.user = user;
 	}

@@ -7,6 +7,7 @@ import javax.persistence.Id;
 public class BankAccount {
 
 	@Id
+	private int id;
 	private String IBAN;
 	private String description;
 
@@ -16,6 +17,14 @@ public class BankAccount {
 	public BankAccount(String iBAN, String description) {
 		this.IBAN = iBAN;
 		this.description = description;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getIBAN() {
@@ -36,7 +45,7 @@ public class BankAccount {
 
 	@Override
 	public String toString() {
-		return "BankAccount [IBAN=" + IBAN + ", description=" + description + "]";
+		return "BankAccount [id=" + id + ", IBAN=" + IBAN + ", description=" + description + "]";
 	}
 
 }
