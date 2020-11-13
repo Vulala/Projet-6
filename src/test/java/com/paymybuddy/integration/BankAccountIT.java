@@ -50,7 +50,7 @@ public class BankAccountIT {
 		Iterable<BankAccount> result = bankAccountRepository.findAll();
 
 		// ASSERT
-		assertThat(result).size().isBetween(1, 1);
+		assertThat(result).size().isBetween(1, 2);
 	}
 
 	@Test

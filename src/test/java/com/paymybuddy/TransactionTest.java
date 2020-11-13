@@ -41,10 +41,11 @@ public class TransactionTest {
 		java.sql.Date date = new java.sql.Date(0);
 		Transaction transaction = new Transaction("userEmailFindById", "userEmailReceiverFindById", date,
 				"descriptionFindById", 10);
+		transaction.setId(1);
 		testEntityManager.persist(transaction);
 
 		// ACT
-		Optional<Transaction> result = transactionRepository.findByUserEmail(transaction.getUserEmail());
+		Optional<Transaction> result = transactionRepository.findById(1);
 
 		// ASSERT
 		assertTrue(result.isPresent());
@@ -61,6 +62,7 @@ public class TransactionTest {
 				"descriptionFindAll", 10);
 		Transaction transaction2 = new Transaction("userEmailFindAll2", "userEmailReceiverFindAll2", date,
 				"descriptionFindAll2", 10);
+		transaction.setId(1);
 		transaction2.setId(2);
 		testEntityManager.persist(transaction);
 		testEntityManager.persist(transaction2);
@@ -73,14 +75,36 @@ public class TransactionTest {
 	}
 
 	@Test
+	public void givenGettingTransactions_whenFindAllByUserEmail_thenItReturnAllTheTransactionsRelatedToTheSpecifiedUser() {
+		// ARRANGE
+		java.sql.Date date = new java.sql.Date(0);
+		Transaction transaction = new Transaction("userEmailFindAll", "userEmailReceiverFindAll", date,
+				"descriptionFindAll", 10);
+		Transaction transaction2 = new Transaction("userEmailFindAll", "userEmailReceiverFindAll2", date,
+				"descriptionFindAll2", 10);
+		transaction.setId(1);
+		transaction2.setId(2);
+		testEntityManager.persist(transaction);
+		testEntityManager.persist(transaction2);
+
+		// ACT
+		Iterable<Transaction> result = transactionRepository.findAllByUserEmail(transaction.getUserEmail());
+
+		// ASSERT
+		assertThat(result).size().isBetween(2, 2);
+	}
+
+	@Test
 	public void givenSavingATransaction_whenSave_thenItSaveTheTransaction() {
 		// ARRANGE
 		java.sql.Date date = new java.sql.Date(0);
 		Transaction transaction = new Transaction("userEmailSave", "userEmailReceiverSave", date, "descriptionSave",
 				10);
+		transaction.setId(1);
+
 		// ACT
 		transactionRepository.save(transaction);
-		Optional<Transaction> result = transactionRepository.findByUserEmail(transaction.getUserEmail());
+		Optional<Transaction> result = transactionRepository.findById(1);
 
 		// ASSERT
 		assertEquals(transaction.getUserEmail(), result.get().getUserEmail());
@@ -94,16 +118,17 @@ public class TransactionTest {
 		java.sql.Date date = new java.sql.Date(0);
 		Transaction transaction = new Transaction("userEmailUpdate", "userEmailReceiverUpdate", date,
 				"descriptionUpdate", 10);
+		transaction.setId(1);
 		testEntityManager.persist(transaction);
 
 		// ACT
-		Optional<Transaction> transactionToUpdate = transactionRepository.findByUserEmail(transaction.getUserEmail());
+		Optional<Transaction> transactionToUpdate = transactionRepository.findById(1);
 		transactionToUpdate.get().setDescription("descriptionUpdated");
 		transactionToUpdate.get().setAmount(20);
 		transactionToUpdate.get().setDate(date);
 		transactionToUpdate.get().setUserEmailReceiver("userEmailReceiverUpdated");
 		transactionRepository.save(transactionToUpdate.get());
-		Optional<Transaction> result = transactionRepository.findByUserEmail(transaction.getUserEmail());
+		Optional<Transaction> result = transactionRepository.findById(1);
 
 		// ASSERT
 		assertEquals(transactionToUpdate.get().getUserEmail(), result.get().getUserEmail());
@@ -120,8 +145,8 @@ public class TransactionTest {
 		testEntityManager.persist(transaction);
 
 		// ACT
-		transactionRepository.deleteById(transaction.getId());
-		Optional<Transaction> result = transactionRepository.findByUserEmail(transaction.getUserEmail());
+		transactionRepository.deleteById(1);
+		Optional<Transaction> result = transactionRepository.findById(1);
 
 		// ASSERT
 		assertThat(result).isEmpty();
@@ -137,7 +162,7 @@ public class TransactionTest {
 		testEntityManager.persist(transaction);
 
 		// ACT
-		Optional<Transaction> result = transactionRepository.findByUserEmail("Void");
+		Optional<Transaction> result = transactionRepository.findById(999);
 
 		// ASSERT
 		assertFalse(result.isPresent());

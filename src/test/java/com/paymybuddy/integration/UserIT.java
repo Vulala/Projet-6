@@ -51,7 +51,7 @@ public class UserIT {
 		Iterable<User> result = userRepository.findAll();
 
 		// ASSERT
-		assertThat(result).size().isBetween(1, 1);
+		assertThat(result).size().isBetween(1, 2);
 	}
 
 	@Test

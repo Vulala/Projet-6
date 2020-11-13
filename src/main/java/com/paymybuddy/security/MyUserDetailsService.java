@@ -1,5 +1,7 @@
 package com.paymybuddy.security;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,12 +27,12 @@ public class MyUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		User user = userRepository.findByEmail(email).get();
-		if (user == null) {
-			throw new UsernameNotFoundException("The user couldn't be found: " + user);
+		Optional<User> optionalUser = userRepository.findByEmail(email);
+		if (optionalUser.isPresent()) {
+			return new UserPrincipal(optionalUser.get());
 		}
 
-		return new UserPrincipal(user);
+		throw new UsernameNotFoundException("The user could not be found: " + optionalUser.get().toString());
 	}
 
 }

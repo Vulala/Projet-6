@@ -36,7 +36,7 @@ public class TransactionIT {
 	@Test
 	public void givenGettingATransaction_whenFindById_thenItReturnTheRightTransaction() {
 		// ACT
-		Optional<Transaction> result = transactionRepository.findByUserEmail("emailTest");
+		Optional<Transaction> result = transactionRepository.findById(1);
 
 		// ASSERT
 		assertTrue(result.isPresent());
@@ -50,7 +50,16 @@ public class TransactionIT {
 		Iterable<Transaction> result = transactionRepository.findAll();
 
 		// ASSERT
-		assertThat(result).size().isBetween(1, 1);
+		assertThat(result).size().isBetween(1, 2);
+	}
+
+	@Test
+	public void givenGettingTransactions_whenFindAllByUserEmail_thenItReturnAllTheTransactionsRelatedToTheSpecifiedUser() {
+		// ACT
+		Iterable<Transaction> result = transactionRepository.findAllByUserEmail("emailTest");
+
+		// ASSERT
+		assertThat(result).size().isBetween(1, 2);
 	}
 
 	@Test
@@ -61,7 +70,7 @@ public class TransactionIT {
 				10);
 		// ACT
 		transactionRepository.save(transaction);
-		Optional<Transaction> result = transactionRepository.findByUserEmail(transaction.getUserEmail());
+		Optional<Transaction> result = transactionRepository.findById(transaction.getId());
 
 		// ASSERT
 		assertEquals(transaction.getUserEmail(), result.get().getUserEmail());
@@ -70,10 +79,10 @@ public class TransactionIT {
 	@Test
 	public void givenUpdatingATransaction_whenFindSetSave_thenItUpdateTheTransaction() {
 		// ACT
-		Optional<Transaction> transactionToUpdate = transactionRepository.findByUserEmail("emailTest");
+		Optional<Transaction> transactionToUpdate = transactionRepository.findById(1);
 		transactionToUpdate.get().setDescription("descriptionUpdated");
 		transactionRepository.save(transactionToUpdate.get());
-		Optional<Transaction> result = transactionRepository.findByUserEmail(transactionToUpdate.get().getUserEmail());
+		Optional<Transaction> result = transactionRepository.findById(transactionToUpdate.get().getId());
 
 		// ASSERT
 		assertEquals(transactionToUpdate.get().getUserEmail(), result.get().getUserEmail());
@@ -84,7 +93,7 @@ public class TransactionIT {
 	public void givenDeletingATransaction_whenDelete_thenItDeleteTheTransaction() {
 		// ACT
 		transactionRepository.deleteById(1);
-		Optional<Transaction> result = transactionRepository.findByUserEmail("emailTest");
+		Optional<Transaction> result = transactionRepository.findById(1);
 
 		// ASSERT
 		assertThat(result).isEmpty();
@@ -94,7 +103,7 @@ public class TransactionIT {
 	@Test
 	public void givenGettingAWrongTransaction_whenFindById_thenItThrowsAnException() {
 		// ACT
-		Optional<Transaction> result = transactionRepository.findByUserEmail("Void");
+		Optional<Transaction> result = transactionRepository.findById(0);
 
 		// ASSERT
 		assertFalse(result.isPresent());
