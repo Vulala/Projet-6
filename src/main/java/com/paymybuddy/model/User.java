@@ -74,7 +74,7 @@ public class User {
 	}
 
 	public void setPassword(String password) {
-		String newPasswordToEncrypt = BCrypt.hashpw(password, BCrypt.gensalt(10));
+		String newPasswordToEncrypt = BCrypt.hashpw(password, BCrypt.gensalt(10)); // Crypt the password when set again
 		this.password = newPasswordToEncrypt;
 	}
 

@@ -32,7 +32,7 @@ public class MyUserDetailsService implements UserDetailsService {
 			return new UserPrincipal(optionalUser.get());
 		}
 
-		throw new UsernameNotFoundException("The user could not be found: " + optionalUser.get().toString());
+		throw new UsernameNotFoundException("The user could not be found: " + email);
 	}
 
 }

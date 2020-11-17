@@ -17,7 +17,7 @@ public class PayMyBuddyApplication {
 	}
 
 	/**
-	 * Redirect the requests on the unsecure port (8080) to the secure port (8443)
+	 * Redirect the requests on the insecure port (8080) to the secure port (8443)
 	 * of tomcat.
 	 */
 
@@ -40,6 +40,11 @@ public class PayMyBuddyApplication {
 		return tomcat;
 	}
 
+	/**
+	 * Define a Connector used to redirect the request on a specific port
+	 * 
+	 * @return a connector
+	 */
 	private Connector redirectConnector() {
 		Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
 		connector.setScheme("http");
