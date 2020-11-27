@@ -57,7 +57,8 @@ public class UserIT {
 	@Test
 	public void givenSavingAnUser_whenSave_thenItSaveTheUser() {
 		// ARRANGE
-		User user = new User("emailSave", "lastNameSave", "firstNameSave", "passwordNotEncrypted", 0, null, null);
+		User user = new User("emailSave", "lastNameSave", "firstNameSave", "passwordNotEncrypted", 0.0, null, null,
+				null);
 
 		// ACT
 		userRepository.save(user);
@@ -104,7 +105,8 @@ public class UserIT {
 	@Test
 	public void givenSettingANewUser_whenFindById_thenTheUserIsSavedAndThePasswordIsEncrypted() {
 		// ARRANGE
-		User user = new User("emailSave", "lastNameSave", "firstNameSave", "passwordNotEncrypted", 0, null, null);
+		User user = new User("emailSave", "lastNameSave", "firstNameSave", "passwordNotEncrypted", 0.0, null, null,
+				null);
 
 		// ACT
 		userRepository.save(user);

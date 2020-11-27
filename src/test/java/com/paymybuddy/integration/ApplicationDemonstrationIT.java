@@ -25,8 +25,6 @@ import com.paymybuddy.repository.UserRepository;
 
 /**
  * This test is used to show how the application work. <br>
- * It is easy to translate this test into a method, which would have the class
- * variables as parameter.
  */
 
 @RunWith(SpringRunner.class)
@@ -42,7 +40,7 @@ public class ApplicationDemonstrationIT {
 
 	private String emailSendingMoney = "emailTest";
 	private String emailReceivingMoney = "emailTest2";
-	private int amountTransfered = 10;
+	private Double amountTransfered = 10.0;
 
 	@Test
 	public void injectedComponentsAreRightlySetUp() {
@@ -67,14 +65,15 @@ public class ApplicationDemonstrationIT {
 		}
 
 		User userSendingMoney = userSendingMoneyOptional.get();
-		int moneyAvailableBeforeTheTransactionUserSending = userSendingMoney.getMoneyAvailable();
-		if (moneyAvailableBeforeTheTransactionUserSending < amountTransfered) {
+		Double tax = amountTransfered * 0.05;
+		Double moneyAvailableBeforeTheTransactionUserSending = userSendingMoney.getMoneyAvailable();
+		if (moneyAvailableBeforeTheTransactionUserSending < amountTransfered + tax) {
 			throw new IllegalAccessError("The money available on the account is not enough to afford the request."
-					+ moneyAvailableBeforeTheTransactionUserSending);
+					+ " Money : " + moneyAvailableBeforeTheTransactionUserSending + " Tax : " + tax);
 		}
 
 		// OK to proceed
-		userSendingMoney.setMoneyAvailable(moneyAvailableBeforeTheTransactionUserSending - amountTransfered);
+		userSendingMoney.setMoneyAvailable(moneyAvailableBeforeTheTransactionUserSending - (amountTransfered + tax));
 		User userReceivingMoney = userReceivingMoneyOptional.get();
 		userReceivingMoney.setMoneyAvailable(userReceivingMoney.getMoneyAvailable() + amountTransfered);
 
@@ -87,7 +86,7 @@ public class ApplicationDemonstrationIT {
 		Transaction resultTransaction = transactionRepository.save(transaction);
 
 		assertNotNull(resultTransaction);
-		assertEquals(userSendingMoneyUpdated.getMoneyAvailable(), 0);
+		assertEquals(userSendingMoneyUpdated.getMoneyAvailable(), 19.5);
 		assertEquals(userGettingMoneyUpdated.getMoneyAvailable(), 10);
 		assertEquals(emailSendingMoney, resultTransaction.getUserEmail());
 		assertEquals(emailReceivingMoney, resultTransaction.getUserEmailReceiver());

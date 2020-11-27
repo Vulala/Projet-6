@@ -40,7 +40,7 @@ public class TransactionTest {
 		// ARRANGE
 		java.sql.Date date = new java.sql.Date(0);
 		Transaction transaction = new Transaction("userEmailFindById", "userEmailReceiverFindById", date,
-				"descriptionFindById", 10);
+				"descriptionFindById", 10.0);
 		transaction.setId(1);
 		testEntityManager.persist(transaction);
 
@@ -55,13 +55,13 @@ public class TransactionTest {
 	}
 
 	@Test
-	public void givenGettingTransactions_whenFindAll_thenItReturnAllTransactions() {
+	public void givenGettingTransactions_whenFindAll_thenItReturnAllTheTransactions() {
 		// ARRANGE
 		java.sql.Date date = new java.sql.Date(0);
 		Transaction transaction = new Transaction("userEmailFindAll", "userEmailReceiverFindAll", date,
-				"descriptionFindAll", 10);
-		Transaction transaction2 = new Transaction("userEmailFindAll2", "userEmailReceiverFindAll2", date,
-				"descriptionFindAll2", 10);
+				"descriptionFindAll", 10.0);
+		Transaction transaction2 = new Transaction("userEmailFindAll", "userEmailReceiverFindAll2", date,
+				"descriptionFindAll2", 10.0);
 		transaction.setId(1);
 		transaction2.setId(2);
 		testEntityManager.persist(transaction);
@@ -75,13 +75,13 @@ public class TransactionTest {
 	}
 
 	@Test
-	public void givenGettingTransactions_whenFindAllByUserEmail_thenItReturnAllTheTransactionsRelatedToTheSpecifiedUser() {
+	public void givenGettingTransactions_whenFindAllByUserEmail_thenItReturnAllTheTransactionsForTheSpecifiedUser() {
 		// ARRANGE
 		java.sql.Date date = new java.sql.Date(0);
-		Transaction transaction = new Transaction("userEmailFindAll", "userEmailReceiverFindAll", date,
-				"descriptionFindAll", 10);
-		Transaction transaction2 = new Transaction("userEmailFindAll", "userEmailReceiverFindAll2", date,
-				"descriptionFindAll2", 10);
+		Transaction transaction = new Transaction("userEmailFindAllByUserEmail", "userEmailReceiverFindAllByUserEmail2",
+				date, "descriptionFindAllByUserEmail", 10.0);
+		Transaction transaction2 = new Transaction("userEmailFindAllByUserEmail",
+				"userEmailReceiverFindAllByUserEmail2", date, "descriptionFindAllByUserEmail2", 10.0);
 		transaction.setId(1);
 		transaction2.setId(2);
 		testEntityManager.persist(transaction);
@@ -99,7 +99,7 @@ public class TransactionTest {
 		// ARRANGE
 		java.sql.Date date = new java.sql.Date(0);
 		Transaction transaction = new Transaction("userEmailSave", "userEmailReceiverSave", date, "descriptionSave",
-				10);
+				10.0);
 		transaction.setId(1);
 
 		// ACT
@@ -117,14 +117,14 @@ public class TransactionTest {
 		// ARRANGE
 		java.sql.Date date = new java.sql.Date(0);
 		Transaction transaction = new Transaction("userEmailUpdate", "userEmailReceiverUpdate", date,
-				"descriptionUpdate", 10);
+				"descriptionUpdate", 10.0);
 		transaction.setId(1);
 		testEntityManager.persist(transaction);
 
 		// ACT
 		Optional<Transaction> transactionToUpdate = transactionRepository.findById(1);
 		transactionToUpdate.get().setDescription("descriptionUpdated");
-		transactionToUpdate.get().setAmount(20);
+		transactionToUpdate.get().setAmount(20.0);
 		transactionToUpdate.get().setDate(date);
 		transactionToUpdate.get().setUserEmailReceiver("userEmailReceiverUpdated");
 		transactionRepository.save(transactionToUpdate.get());
@@ -140,7 +140,7 @@ public class TransactionTest {
 		// ARRANGE
 		java.sql.Date date = new java.sql.Date(0);
 		Transaction transaction = new Transaction("userEmailDelete", "userEmailReceiverDelete", date,
-				"descriptionDelete", 10);
+				"descriptionDelete", 10.0);
 		transaction.setId(1);
 		testEntityManager.persist(transaction);
 
@@ -158,7 +158,7 @@ public class TransactionTest {
 		// ARRANGE
 		java.sql.Date date = new java.sql.Date(0);
 		Transaction transaction = new Transaction("userEmailFindById", "userEmailReceiverFindById", date,
-				"descriptionFindById", 10);
+				"descriptionFindById", 10.0);
 		testEntityManager.persist(transaction);
 
 		// ACT

@@ -36,9 +36,9 @@ public class BankAccountTest {
 	}
 
 	@Test
-	public void givenGettingABankAccount_whenFindById_thenItReturnTheRightBankAccount() {
+	public void givenGettingABankAccount_whenFindByIBAN_thenItReturnTheRightBankAccount() {
 		// ARRANGE
-		BankAccount bankAccount = new BankAccount("IBANFindById", "descriptionFindById");
+		BankAccount bankAccount = new BankAccount("IBANFindByIBAN", "descriptionFindByIBAN");
 		testEntityManager.persist(bankAccount);
 
 		// ACT
@@ -112,9 +112,9 @@ public class BankAccountTest {
 	}
 
 	@Test
-	public void givenGettingAWrongBankAccount_whenFindById_thenItThrowsAnException() {
+	public void givenGettingAWrongBankAccount_whenFindByIBAN_thenItThrowsAnException() {
 		// ARRANGE
-		BankAccount bankAccount = new BankAccount("IBANFindById", "descriptionFindById");
+		BankAccount bankAccount = new BankAccount("IBANFindByIBAN", "descriptionFindByIBAN");
 		testEntityManager.persist(bankAccount);
 
 		// ACT

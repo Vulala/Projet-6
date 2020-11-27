@@ -1,10 +1,15 @@
 package com.paymybuddy.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
@@ -17,24 +22,30 @@ public class User {
 	private String lastName;
 	private String firstName;
 	private String password;
-	private int moneyAvailable;
-	@OneToMany
-	private List<BankAccount> bankAccount; // Hibernate mapping
-	@OneToMany
-	private List<Transaction> transaction; // Hibernate mapping
+	private Double moneyAvailable;
+	@OneToOne
+	@JoinColumn(name = "bank_account")
+	private BankAccount bankAccount;
+	@OneToMany(mappedBy = "user")
+	private List<Transaction> transaction = new ArrayList<>();
+	@ManyToMany
+	@JoinTable(name = "user_buddy", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "buddy_emailBuddy") })
+	private List<Buddy> buddy = new ArrayList<>();;
 
 	protected User() {
 	}
 
-	public User(String email, String lastName, String firstName, String password, int moneyAvailable,
-			List<BankAccount> bankAccount, List<Transaction> transaction) {
+	public User(String email, String lastName, String firstName, String password, Double moneyAvailable,
+			BankAccount bankAccount, List<Transaction> transaction, List<Buddy> buddy) {
 		this.email = email;
 		this.lastName = lastName;
 		this.firstName = firstName;
-		this.password = BCrypt.hashpw(password, BCrypt.gensalt(10));
+		this.password = password;
 		this.moneyAvailable = moneyAvailable;
 		this.bankAccount = bankAccount;
 		this.transaction = transaction;
+		this.buddy = buddy;
 	}
 
 	public int getId() {
@@ -78,19 +89,19 @@ public class User {
 		this.password = newPasswordToEncrypt;
 	}
 
-	public int getMoneyAvailable() {
+	public Double getMoneyAvailable() {
 		return moneyAvailable;
 	}
 
-	public void setMoneyAvailable(int moneyAvailable) {
+	public void setMoneyAvailable(Double moneyAvailable) {
 		this.moneyAvailable = moneyAvailable;
 	}
 
-	public List<BankAccount> getBankAccount() {
+	public BankAccount getBankAccount() {
 		return bankAccount;
 	}
 
-	public void setBankAccount(List<BankAccount> bankAccount) {
+	public void setBankAccount(BankAccount bankAccount) {
 		this.bankAccount = bankAccount;
 	}
 
@@ -102,11 +113,19 @@ public class User {
 		this.transaction = transaction;
 	}
 
+	public List<Buddy> getBuddy() {
+		return buddy;
+	}
+
+	public void setBuddy(List<Buddy> buddy) {
+		this.buddy = buddy;
+	}
+
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", email=" + email + ", lastName=" + lastName + ", firstName=" + firstName
 				+ ", password=" + password + ", moneyAvailable=" + moneyAvailable + ", bankAccount=" + bankAccount
-				+ ", transaction=" + transaction + "]";
+				+ ", transaction=" + transaction + ", buddy=" + buddy + "]";
 	}
 
 }

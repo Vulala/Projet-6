@@ -2,6 +2,8 @@ package com.paymybuddy.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 @Entity
 public class BankAccount {
@@ -10,6 +12,9 @@ public class BankAccount {
 	private int id;
 	private String IBAN;
 	private String description;
+	@OneToOne
+	@JoinColumn(name = "user")
+	private User user;
 
 	protected BankAccount() {
 	}
@@ -41,6 +46,10 @@ public class BankAccount {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public User getUser() {
+		return user;
 	}
 
 	@Override

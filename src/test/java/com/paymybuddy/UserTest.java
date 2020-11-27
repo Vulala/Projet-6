@@ -36,10 +36,10 @@ public class UserTest {
 	}
 
 	@Test
-	public void givenGettingAnUser_whenFindById_thenItReturnTheRightUser() {
+	public void givenGettingAnUser_whenFindByEmail_thenItReturnTheRightUser() {
 		// ARRANGE
-		User user = new User("emailFindById", "lastNameFindById", "firstNameFindById", "passwordNotEncrypted", 0, null,
-				null);
+		User user = new User("emailFindByEmail", "lastNameFindByEmail", "firstNameFindByEmail", "passwordNotEncrypted",
+				0.0, null, null, null);
 		testEntityManager.persist(user);
 
 		// ACT
@@ -54,10 +54,10 @@ public class UserTest {
 	@Test
 	public void givenGettingUsers_whenFindAll_thenItReturnAllUsers() {
 		// ARRANGE
-		User user = new User("emailFindAll", "lastNameFindAll", "firstNameFindAll", "passwordNotEncrypted", 0, null,
-				null);
-		User user2 = new User("emailFindAll2", "lastNameFindAll2", "firstNameFindAll2", "passwordNotEncrypted2", 02,
+		User user = new User("emailFindAll", "lastNameFindAll", "firstNameFindAll", "passwordNotEncrypted", 0.0, null,
 				null, null);
+		User user2 = new User("emailFindAll2", "lastNameFindAll2", "firstNameFindAll2", "passwordNotEncrypted2", 0.02,
+				null, null, null);
 		user2.setId(2);
 		testEntityManager.persist(user);
 		testEntityManager.persist(user2);
@@ -72,7 +72,8 @@ public class UserTest {
 	@Test
 	public void givenSavingAnUser_whenSave_thenItSaveTheUser() {
 		// ARRANGE
-		User user = new User("emailSave", "lastNameSave", "firstNameSave", "passwordNotEncrypted", 0, null, null);
+		User user = new User("emailSave", "lastNameSave", "firstNameSave", "passwordNotEncrypted", 0.0, null, null,
+				null);
 
 		// ACT
 		userRepository.save(user);
@@ -89,7 +90,8 @@ public class UserTest {
 	@Test
 	public void givenUpdatingAnUser_whenFindSetSave_thenItUpdateTheUser() {
 		// ARRANGE
-		User user = new User("emailUpdate", "lastNameUpdate", "firstNameUpdate", "passwordNotEncrypted", 0, null, null);
+		User user = new User("emailUpdate", "lastNameUpdate", "firstNameUpdate", "passwordNotEncrypted", 0.0, null,
+				null, null);
 		testEntityManager.persist(user);
 
 		// ACT
@@ -97,7 +99,7 @@ public class UserTest {
 		userToUpdate.get().setFirstName("firstNameUpdated");
 		userToUpdate.get().setLastName("lastNameUpdated");
 		userToUpdate.get().setPassword("passwordUpdated");
-		userToUpdate.get().setMoneyAvailable(10);
+		userToUpdate.get().setMoneyAvailable(10.0);
 		userToUpdate.get().setBankAccount(null);
 		userToUpdate.get().setTransaction(null);
 		userRepository.save(userToUpdate.get());
@@ -111,7 +113,8 @@ public class UserTest {
 	@Test
 	public void givenDeletingAnUser_whenDelete_thenItDeleteTheUser() {
 		// ARRANGE
-		User user = new User("emailDelete", "lastNameDelete", "firstNameDelete", "passwordNotEncrypted", 0, null, null);
+		User user = new User("emailDelete", "lastNameDelete", "firstNameDelete", "passwordNotEncrypted", 0.0, null,
+				null, null);
 		user.setId(1);
 		testEntityManager.persist(user);
 
@@ -125,10 +128,10 @@ public class UserTest {
 	}
 
 	@Test
-	public void givenGettingAWrongUser_whenFindById_thenItThrowsAnException() {
+	public void givenGettingAWrongUser_whenFindByEmail_thenItThrowsAnException() {
 		// ARRANGE
-		User user = new User("emailFindById", "lastNameFindById", "firstNameFindById", "passwordNotEncrypted", 0, null,
-				null);
+		User user = new User("emailFindByEmail", "lastNameFindByEmail", "firstNameFindByEmail", "passwordNotEncrypted",
+				0.0, null, null, null);
 		testEntityManager.persist(user);
 
 		// ACT
@@ -140,9 +143,10 @@ public class UserTest {
 	}
 
 	@Test
-	public void givenSettingANewUser_whenFindById_thenTheUserIsSavedAndThePasswordIsEncrypted() {
+	public void givenSettingANewUser_whenFindByEmail_thenTheUserIsSavedAndThePasswordIsEncrypted() {
 		// ARRANGE
-		User user = new User("emailSave", "lastNameSave", "firstNameSave", "passwordNotEncrypted", 0, null, null);
+		User user = new User("emailSave", "lastNameSave", "firstNameSave", "passwordNotEncrypted", 0.0, null, null,
+				null);
 		testEntityManager.persist(user);
 
 		// ACT

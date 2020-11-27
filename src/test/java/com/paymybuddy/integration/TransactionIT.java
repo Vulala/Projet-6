@@ -67,7 +67,7 @@ public class TransactionIT {
 		// ARRANGE
 		java.sql.Date date = new java.sql.Date(0);
 		Transaction transaction = new Transaction("userEmailSave", "userEmailReceiverSave", date, "descriptionSave",
-				10);
+				10.0);
 		// ACT
 		transactionRepository.save(transaction);
 		Optional<Transaction> result = transactionRepository.findById(transaction.getId());

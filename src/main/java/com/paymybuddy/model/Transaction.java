@@ -4,6 +4,8 @@ import java.sql.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class Transaction {
@@ -14,12 +16,15 @@ public class Transaction {
 	private String userEmailReceiver;
 	private Date date;
 	private String description;
-	private int amount;
+	private Double amount;
+	@ManyToOne
+	@JoinColumn(name = "user")
+	private User user;
 
 	protected Transaction() {
 	}
 
-	public Transaction(String userEmail, String userEmailReceiver, Date date, String description, int amount) {
+	public Transaction(String userEmail, String userEmailReceiver, Date date, String description, Double amount) {
 		this.userEmail = userEmail;
 		this.userEmailReceiver = userEmailReceiver;
 		this.date = date;
@@ -67,12 +72,16 @@ public class Transaction {
 		this.description = description;
 	}
 
-	public int getAmount() {
+	public Double getAmount() {
 		return amount;
 	}
 
-	public void setAmount(int amount) {
+	public void setAmount(Double amount) {
 		this.amount = amount;
+	}
+
+	public User getUser() {
+		return user;
 	}
 
 	@Override
