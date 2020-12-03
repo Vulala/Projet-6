@@ -50,7 +50,7 @@ public class TransactionIT {
 		Iterable<Transaction> result = transactionRepository.findAll();
 
 		// ASSERT
-		assertThat(result).size().isBetween(1, 2);
+		assertThat(result).hasSizeGreaterThan(0);
 	}
 
 	@Test
@@ -59,7 +59,7 @@ public class TransactionIT {
 		Iterable<Transaction> result = transactionRepository.findAllByUserEmail("emailTest");
 
 		// ASSERT
-		assertThat(result).size().isBetween(1, 2);
+		assertThat(result).hasSizeGreaterThan(0);
 	}
 
 	@Test

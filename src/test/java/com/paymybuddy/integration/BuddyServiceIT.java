@@ -1,4 +1,4 @@
-package com.paymybuddy;
+package com.paymybuddy.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
@@ -13,36 +13,38 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.paymybuddy.model.Buddy;
-import com.paymybuddy.repository.BuddyRepository;
+import com.paymybuddy.service.BuddyService;
+import com.paymybuddy.service.impl.BuddyServiceImpl;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-public class BuddyTest {
+@Import(BuddyServiceImpl.class)
+public class BuddyServiceIT {
 
 	@Autowired
-	private BuddyRepository buddyRepository;
+	private BuddyService buddyService;
 
 	@Autowired
 	private TestEntityManager testEntityManager;
 
 	@Test
 	public void injectedComponentsAreRightlySetUp() {
-		assertThat(buddyRepository).isNotNull();
+		assertThat(buddyService).isNotNull();
 		assertThat(testEntityManager).isNotNull();
 	}
 
 	@Test
-	public void givenGettingABuddy_whenFindByEmail_thenItReturnTheRightBuddy() {
+	public void givenGettingABuddy_whenGetBuddy_thenItReturnTheRightBuddy() {
 		// ARRANGE
-		Buddy buddy = new Buddy("emailFindByEmail", "firstNameFindByEmail", "lastNameFindByEmail",
-				"descriptionFindByEmail");
+		Buddy buddy = new Buddy("emailGetBuddy", "firstNameGetBuddy", "lastNameGetBuddy", "descriptionGetBuddy");
 		testEntityManager.persist(buddy);
 
 		// ACT
-		Optional<Buddy> result = buddyRepository.findByEmailBuddy(buddy.getEmailBuddy());
+		Optional<Buddy> result = buddyService.getBuddy(buddy.getEmailBuddy());
 
 		// ASSERT
 		assertEquals(buddy.getEmailBuddy(), result.get().getEmailBuddy());
@@ -50,28 +52,31 @@ public class BuddyTest {
 	}
 
 	@Test
-	public void givenGettingAllBuddys_whenFindAll_thenItReturnAllBuddys() {
+	public void givenGettingAllBuddys_whenFindAllBuddy_thenItReturnAllBuddys() {
 		// ARRANGE
-		Buddy buddy = new Buddy("emailFindAll", "firstNameFindAll", "lastNameFindAll", "descriptionFindAll");
-		Buddy buddy2 = new Buddy("emailFindAll2", "firstNameFindAll2", "lastNameFindAll2", "descriptionFindAll2");
+		Buddy buddy = new Buddy("emailFindAllBuddy", "firstNameFindAllBuddy", "lastNameFindAllBuddy",
+				"descriptionFindAllBuddy");
+		Buddy buddy2 = new Buddy("emailFindAllBuddy2", "firstNameFindAllBuddy2", "lastNameFindAllBuddy2",
+				"descriptionFindAllBuddy2");
 		testEntityManager.persist(buddy);
 		testEntityManager.persist(buddy2);
 
 		// ACT
-		Iterable<Buddy> result = buddyRepository.findAll();
+		Iterable<Buddy> result = buddyService.findAllBuddy();
 
 		// ASSERT
 		assertThat(result).size().isGreaterThan(1);
 	}
 
 	@Test
-	public void givenSavingABuddy_whenSaveBuddy_thenItSaveTheBuddy() {
+	public void givenSavingABuddy_whenCreateBuddy_thenItCreateTheBuddy() {
 		// ARRANGE
-		Buddy buddy = new Buddy("emailSave", "firstNameSave", "lastNameSave", "descriptionSave");
+		Buddy buddy = new Buddy("emailCreateBuddy", "firstNameCreateBuddy", "lastNameCreateBuddy",
+				"descriptionCreateBuddy");
 
 		// ACT
-		buddyRepository.save(buddy);
-		Optional<Buddy> result = buddyRepository.findByEmailBuddy(buddy.getEmailBuddy());
+		buddyService.createBuddy(buddy);
+		Optional<Buddy> result = buddyService.getBuddy(buddy.getEmailBuddy());
 
 		// ASSERT
 		assertEquals(result.isPresent(), true);
@@ -80,18 +85,19 @@ public class BuddyTest {
 	}
 
 	@Test
-	public void givenUpdatingABuddy_whenFindSetSaveBuddy_thenItUpdateTheBuddy() {
+	public void givenUpdatingABuddy_whenUpdateBuddy_thenItUpdateTheBuddy() {
 		// ARRANGE
-		Buddy buddy = new Buddy("emailUpdate", "firstNameUpdate", "lastNameUpdate", "descriptionUpdate");
+		Buddy buddy = new Buddy("emailUpdateBuddy", "firstNameUpdateBuddy", "lastNameUpdateBuddy",
+				"descriptionUpdateBuddy");
 		testEntityManager.persist(buddy);
 
 		// ACT
-		Optional<Buddy> buddyToUpdate = buddyRepository.findByEmailBuddy(buddy.getEmailBuddy());
+		Optional<Buddy> buddyToUpdate = buddyService.getBuddy(buddy.getEmailBuddy());
 		buddyToUpdate.get().setFirstName("firstNameUpdated");
 		buddyToUpdate.get().setLastName("lastNameUpdated");
 		buddyToUpdate.get().setDescription("descriptionUpdated");
-		buddyRepository.save(buddyToUpdate.get());
-		Optional<Buddy> result = buddyRepository.findByEmailBuddy(buddy.getEmailBuddy());
+		buddyService.updateBuddy(buddyToUpdate.get());
+		Optional<Buddy> result = buddyService.getBuddy(buddy.getEmailBuddy());
 
 		// ASSERT
 		assertEquals(buddyToUpdate.get().getFirstName(), result.get().getFirstName());
@@ -100,12 +106,13 @@ public class BuddyTest {
 	@Test
 	public void givenDeletingABuddy_whenDeleteBuddy_thenItDeleteTheBuddy() {
 		// ARRANGE
-		Buddy buddy = new Buddy("emailDelete", "firstNameDelete", "lastNameDelete", "descriptionDelete");
+		Buddy buddy = new Buddy("emailDeleteBuddy", "firstNameDeleteBuddy", "lastNameDeleteBuddy",
+				"descriptionDeleteBuddy");
 		testEntityManager.persist(buddy);
 
 		// ACT
-		buddyRepository.delete(buddy);
-		Optional<Buddy> result = buddyRepository.findByEmailBuddy(buddy.getEmailBuddy());
+		buddyService.deleteBuddy(buddy);
+		Optional<Buddy> result = buddyService.getBuddy(buddy.getEmailBuddy());
 
 		// ASSERT
 		assertThat(result).isEmpty();
@@ -114,7 +121,7 @@ public class BuddyTest {
 	@Test
 	public void givenGettingAWrongBuddy_whenGetBuddy_thenItThrowsAException() {
 		// ACT
-		Optional<Buddy> result = buddyRepository.findByEmailBuddy("Void");
+		Optional<Buddy> result = buddyService.getBuddy("Void");
 
 		// ASSERT
 		assertFalse(result.isPresent());

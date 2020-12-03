@@ -55,7 +55,7 @@ public class TransactionTest {
 	}
 
 	@Test
-	public void givenGettingTransactions_whenFindAll_thenItReturnAllTheTransactions() {
+	public void givenGettingTransactions_whenFindAll_thenItReturnAllTheTransactionsForTheSpecifiedUser() {
 		// ARRANGE
 		java.sql.Date date = new java.sql.Date(0);
 		Transaction transaction = new Transaction("userEmailFindAll", "userEmailReceiverFindAll", date,

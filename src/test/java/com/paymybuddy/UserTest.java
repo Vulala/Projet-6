@@ -2,6 +2,7 @@ package com.paymybuddy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -143,17 +144,19 @@ public class UserTest {
 	}
 
 	@Test
-	public void givenSettingANewUser_whenFindByEmail_thenTheUserIsSavedAndThePasswordIsEncrypted() {
+	public void givenSettingANewUser_whenSave_thenTheUserIsSavedAndThePasswordIsEncrypted() {
 		// ARRANGE
 		User user = new User("emailSave", "lastNameSave", "firstNameSave", "passwordNotEncrypted", 0.0, null, null,
 				null);
 		testEntityManager.persist(user);
 
 		// ACT
+		user.setPassword("passwordEncrypted");
+		userRepository.save(user);
 		Optional<User> result = userRepository.findByEmail(user.getEmail());
 
 		// ASSERT
-		assertEquals(user.getPassword(), result.get().getPassword());
+		assertNotEquals("passwordEncrypted", result.get().getPassword());
 	}
 
 }

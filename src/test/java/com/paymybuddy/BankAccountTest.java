@@ -103,12 +103,11 @@ public class BankAccountTest {
 		testEntityManager.persist(bankAccount);
 
 		// ACT
-		bankAccountRepository.deleteById(bankAccount.getId());
+		bankAccountRepository.delete(bankAccount);
 		Optional<BankAccount> result = bankAccountRepository.findById(bankAccount.getId());
 
 		// ASSERT
 		assertThat(result).isEmpty();
-
 	}
 
 	@Test

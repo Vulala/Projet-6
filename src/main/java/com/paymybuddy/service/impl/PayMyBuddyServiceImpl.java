@@ -25,6 +25,10 @@ import com.paymybuddy.service.PayMyBuddyService;
  * Service which implement the {@link PayMyBuddyService} interface. <br>
  * It override the methods and define the business logic. <br>
  * It make use of the differents {@link com.paymybuddy.repository} interfaces.
+ * <br>
+ * <br>
+ * The class is annotated with {@link Transactional}, rolling back every
+ * transactions in case of any Exceptions thrown by the different methods.
  */
 @Service
 @Transactional(rollbackOn = { Exception.class })
@@ -56,6 +60,7 @@ public class PayMyBuddyServiceImpl implements PayMyBuddyService {
 	@Override
 	public void addBankAccount(User user, String iban, String description) {
 		Optional<User> userToUpdate = userRepository.findByEmail(user.getEmail());
+
 		if (userToUpdate.isPresent()) {
 			BankAccount bankAccount = new BankAccount(iban, description);
 			user.setBankAccount(bankAccount);
@@ -79,17 +84,25 @@ public class PayMyBuddyServiceImpl implements PayMyBuddyService {
 	public void deleteBankAccount(User user, String iban) {
 		Optional<BankAccount> bankAccountToDelete = bankAccountRepository.findByIBAN(iban);
 		Optional<User> userToUpdate = userRepository.findByEmail(user.getEmail());
+
 		if (userToUpdate.isPresent()) {
 			if (bankAccountToDelete.isPresent()) {
-				BankAccount bankAccount = new BankAccount(null, null);
-				user.setBankAccount(bankAccount);
-				userRepository.save(user);
-				bankAccountRepository.delete(bankAccountToDelete.get());
-			}
-			throw new IllegalArgumentException("The provided IBAN: << " + iban + " >> is not valid.");
-		}
-		throw new NoSuchElementException("The provided User: << " + user + " >> cannot be found.");
+				if (userToUpdate.get().getBankAccount().equals(bankAccountToDelete.get())) {
+					bankAccountRepository.delete(bankAccountToDelete.get());
 
+					BankAccount bankAccount = new BankAccount(null, null);
+					user.setBankAccount(bankAccount);
+					userRepository.save(user);
+				} else {
+					throw new IllegalArgumentException(
+							"The provided IBAN: << " + iban + " >> is not associated to this: " + user + " account.");
+				}
+			} else {
+				throw new IllegalArgumentException("The provided IBAN: << " + iban + " >> is not valid.");
+			}
+		} else {
+			throw new NoSuchElementException("The provided User: << " + user + " >> cannot be found.");
+		}
 	}
 
 	/**
@@ -103,7 +116,6 @@ public class PayMyBuddyServiceImpl implements PayMyBuddyService {
 	@Override
 	public void createTransaction(User userSendingMoney, User userGettingMoney, String description,
 			Double amountOfTheTransaction) {
-
 		Optional<User> userSendingToUpdate = userRepository.findByEmail(userSendingMoney.getEmail());
 		Optional<User> userGettingToUpdate = userRepository.findByEmail(userGettingMoney.getEmail());
 
@@ -115,6 +127,7 @@ public class PayMyBuddyServiceImpl implements PayMyBuddyService {
 
 					Transaction transaction = new Transaction(userSendingMoney.getEmail(), userGettingMoney.getEmail(),
 							Date.valueOf(LocalDate.now()), description, amountOfTheTransaction);
+					transactionRepository.save(transaction);
 
 					List<Transaction> userTransactions = userSendingMoney.getTransaction();
 					userTransactions.add(transaction);
@@ -122,14 +135,16 @@ public class PayMyBuddyServiceImpl implements PayMyBuddyService {
 
 					userRepository.save(userSendingMoney);
 					userRepository.save(userGettingMoney);
-					transactionRepository.save(transaction);
+				} else {
+					throw new IllegalArgumentException("The provided amount for the transaction: << "
+							+ amountOfTheTransaction + " >> is not valid.");
 				}
-				throw new IllegalArgumentException(
-						"The provided amount for the transaction: << " + amountOfTheTransaction + " >> is not valid.");
+			} else {
+				throw new NoSuchElementException("The provided User: << " + userGettingMoney + " >> cannot be found.");
 			}
-			throw new NoSuchElementException("The provided User: << " + userGettingMoney + " >> cannot be found.");
+		} else {
+			throw new NoSuchElementException("The provided User: << " + userSendingMoney + " >> cannot be found.");
 		}
-		throw new NoSuchElementException("The provided User: << " + userSendingMoney + " >> cannot be found.");
 	}
 
 	/**
@@ -176,22 +191,26 @@ public class PayMyBuddyServiceImpl implements PayMyBuddyService {
 	 * @param description : about the buddy
 	 */
 	@Override
-	public void addBuddy(User user, User buddy, String description) {
+	public void addBuddy(User user, User userAsBuddy, String description) {
 		Optional<User> userCheck = userRepository.findByEmail(user.getEmail());
-		Optional<User> buddyCheck = userRepository.findByEmail(buddy.getEmail());
+		Optional<User> buddyCheck = userRepository.findByEmail(userAsBuddy.getEmail());
 
 		if (userCheck.isPresent()) {
 			if (buddyCheck.isPresent()) {
-				Buddy buddyToAdd = new Buddy(buddy.getEmail(), buddy.getFirstName(), buddy.getLastName(), description);
+				Buddy buddyToAdd = new Buddy(userAsBuddy.getEmail(), userAsBuddy.getFirstName(),
+						userAsBuddy.getLastName(), description);
 				List<Buddy> userListOfBuddy = user.getBuddy();
 				userListOfBuddy.add(buddyToAdd);
 				user.setBuddy(userListOfBuddy);
+
 				userRepository.save(user);
 				buddyRepository.save(buddyToAdd);
+			} else {
+				throw new NoSuchElementException("The provided Buddy: << " + userAsBuddy + " >> cannot be found.");
 			}
-			throw new NoSuchElementException("The provided Buddy: << " + buddy + " >> cannot be found.");
+		} else {
+			throw new NoSuchElementException("The provided User: << " + user + " >> cannot be found.");
 		}
-		throw new NoSuchElementException("The provided User: << " + user + " >> cannot be found.");
 
 	}
 
@@ -215,19 +234,20 @@ public class PayMyBuddyServiceImpl implements PayMyBuddyService {
 			if (buddyCheck.isPresent()) {
 				Buddy buddyToUpdate = new Buddy(buddy.getEmailBuddy(), buddy.getFirstName(), buddy.getLastName(),
 						description);
+				user.getBuddy().remove(buddyCheck.get());
 				List<Buddy> userListOfBuddy = user.getBuddy();
 				userListOfBuddy.add(buddyToUpdate);
-				user.getBuddy().remove(buddy);
 				user.setBuddy(userListOfBuddy);
 
 				userRepository.save(user);
-				buddyRepository.delete(buddy);
 				buddyRepository.save(buddyToUpdate);
-			}
-			throw new NoSuchElementException("The provided Buddy: << " + buddy + " >> cannot be found.");
-		}
-		throw new NoSuchElementException("The provided User: << " + user + " >> cannot be found.");
 
+			} else {
+				throw new NoSuchElementException("The provided Buddy: << " + buddy + " >> cannot be found.");
+			}
+		} else {
+			throw new NoSuchElementException("The provided User: << " + user + " >> cannot be found.");
+		}
 	}
 
 	/**
@@ -251,11 +271,53 @@ public class PayMyBuddyServiceImpl implements PayMyBuddyService {
 				user.getBuddy().remove(buddyCheck.get());
 				userRepository.save(user);
 				buddyRepository.delete(buddy);
+			} else {
+				throw new NoSuchElementException("The provided Buddy: << " + buddy + " >> cannot be found.");
 			}
-			throw new NoSuchElementException("The provided Buddy: << " + buddy + " >> cannot be found.");
+		} else {
+			throw new NoSuchElementException("The provided User: << " + user + " >> cannot be found.");
 		}
-		throw new NoSuchElementException("The provided User: << " + user + " >> cannot be found.");
 
+	}
+
+	/**
+	 * Method used to transfert money from the user's bank account to his paymybuddy
+	 * account. <br>
+	 * <br>
+	 * It firstly verify that both the user and the bank account are present in the
+	 * database. <br>
+	 * Then it verify that the provided bank account is associated to the current
+	 * user. <br>
+	 * Then it proceed if all the conditions are set to true; the user's money is
+	 * updated in the database table. <be>
+	 * 
+	 * @param user             : transfering money
+	 * @param bankAccount      : to get money from
+	 * @param amountTransfered : from the bankAccount to the user's paymybuddy
+	 *                         account
+	 */
+	@Override
+	public void addMoneyOnThePayMyBuddyAccountFromBankAccount(User user, BankAccount bankAccount,
+			Double amountTransfered) {
+		Optional<User> userCheck = userRepository.findByEmail(user.getEmail());
+		Optional<BankAccount> bankAccountCheck = bankAccountRepository.findByIBAN(bankAccount.getIBAN());
+
+		if (userCheck.isPresent()) {
+			if (bankAccountCheck.isPresent()) {
+				if (userCheck.get().getBankAccount().equals(bankAccount)) {
+					user.setMoneyAvailable(user.getMoneyAvailable() + amountTransfered);
+					userRepository.save(user);
+				} else {
+					throw new NoSuchElementException("The provided Bank account: << " + bankAccount
+							+ " >> is not associated to this: " + user + " account.");
+				}
+			} else {
+				throw new NoSuchElementException(
+						"The provided Bank account: << " + bankAccount + " >> cannot be found.");
+			}
+		} else {
+			throw new NoSuchElementException("The provided User: << " + user + " >> cannot be found.");
+		}
 	}
 
 }

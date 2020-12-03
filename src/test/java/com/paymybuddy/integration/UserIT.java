@@ -39,7 +39,6 @@ public class UserIT {
 		Optional<User> result = userRepository.findByEmail("emailTest");
 
 		// ASSERT
-		System.out.println(result.get().toString());
 		assertTrue(result.isPresent());
 		assertEquals("emailTest", result.get().getEmail());
 		assertEquals("firstNameTest", result.get().getFirstName());
@@ -51,7 +50,7 @@ public class UserIT {
 		Iterable<User> result = userRepository.findAll();
 
 		// ASSERT
-		assertThat(result).size().isBetween(1, 2);
+		assertThat(result).hasSizeGreaterThan(1);
 	}
 
 	@Test

@@ -1,5 +1,6 @@
 package com.paymybuddy.service;
 
+import com.paymybuddy.model.BankAccount;
 import com.paymybuddy.model.Buddy;
 import com.paymybuddy.model.User;
 import com.paymybuddy.service.impl.PayMyBuddyServiceImpl;
@@ -27,5 +28,7 @@ public interface PayMyBuddyService {
 	void updateBuddy(User user, Buddy buddy, String description);
 
 	void deleteBuddy(User user, Buddy buddy);
+
+	void addMoneyOnThePayMyBuddyAccountFromBankAccount(User user, BankAccount bankAccount, Double amountTransfered);
 
 }
