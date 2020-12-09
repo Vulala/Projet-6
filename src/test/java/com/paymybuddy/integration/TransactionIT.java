@@ -18,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.paymybuddy.model.Transaction;
+import com.paymybuddy.model.User;
 import com.paymybuddy.repository.TransactionRepository;
 
 @RunWith(SpringRunner.class)
@@ -40,7 +41,7 @@ public class TransactionIT {
 
 		// ASSERT
 		assertTrue(result.isPresent());
-		assertEquals("emailTest", result.get().getUserEmail());
+		assertEquals(10, result.get().getAmount());
 		assertEquals("descriptionTest", result.get().getDescription());
 	}
 
@@ -54,26 +55,21 @@ public class TransactionIT {
 	}
 
 	@Test
-	public void givenGettingTransactions_whenFindAllByUserEmail_thenItReturnAllTheTransactionsRelatedToTheSpecifiedUser() {
-		// ACT
-		Iterable<Transaction> result = transactionRepository.findAllByUserEmail("emailTest");
-
-		// ASSERT
-		assertThat(result).hasSizeGreaterThan(0);
-	}
-
-	@Test
 	public void givenSavingATransaction_whenSave_thenItSaveTheTransaction() {
 		// ARRANGE
+		User userSender = new User("emailTransaction", "lastNameTransaction", "firstNameTransaction",
+				"passwordNotEncrypted", 20.0, null, null, null);
+		User userReceiver = new User("emailTransaction2", "lastNameTransaction2", "firstNameTransaction2",
+				"passwordNotEncrypted2", 0.0, null, null, null);
 		java.sql.Date date = new java.sql.Date(0);
-		Transaction transaction = new Transaction("userEmailSave", "userEmailReceiverSave", date, "descriptionSave",
-				10.0);
+		Transaction transaction = new Transaction(userSender, userReceiver, date, "descriptionSave", 10.0);
+
 		// ACT
 		transactionRepository.save(transaction);
 		Optional<Transaction> result = transactionRepository.findById(transaction.getId());
 
 		// ASSERT
-		assertEquals(transaction.getUserEmail(), result.get().getUserEmail());
+		assertEquals(transaction.getUserSender().getEmail(), result.get().getUserSender().getEmail());
 	}
 
 	@Test
@@ -85,7 +81,7 @@ public class TransactionIT {
 		Optional<Transaction> result = transactionRepository.findById(transactionToUpdate.get().getId());
 
 		// ASSERT
-		assertEquals(transactionToUpdate.get().getUserEmail(), result.get().getUserEmail());
+		assertEquals(transactionToUpdate.get().getAmount(), result.get().getAmount());
 		assertEquals(transactionToUpdate.get().getDescription(), result.get().getDescription());
 	}
 
@@ -107,7 +103,7 @@ public class TransactionIT {
 
 		// ASSERT
 		assertFalse(result.isPresent());
-		assertThrows(NoSuchElementException.class, () -> result.get().getUserEmail());
+		assertThrows(NoSuchElementException.class, () -> result.get().getUserSender().getEmail());
 	}
 
 }

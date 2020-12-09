@@ -1,6 +1,7 @@
 package com.paymybuddy.service;
 
 import com.paymybuddy.model.Transaction;
+import com.paymybuddy.model.User;
 import com.paymybuddy.service.impl.TransactionServiceImpl;
 
 /**
@@ -12,6 +13,6 @@ import com.paymybuddy.service.impl.TransactionServiceImpl;
  */
 public interface TransactionService {
 
-	Iterable<Transaction> findAllTransactionByUserEmail(String email);
+	Iterable<Transaction> findAllByUserSender(User user);
 
 }

@@ -21,11 +21,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.paymybuddy.model.BankAccount;
-import com.paymybuddy.model.Buddy;
 import com.paymybuddy.model.Transaction;
 import com.paymybuddy.model.User;
 import com.paymybuddy.repository.BankAccountRepository;
-import com.paymybuddy.repository.BuddyRepository;
 import com.paymybuddy.repository.TransactionRepository;
 import com.paymybuddy.repository.UserRepository;
 import com.paymybuddy.service.impl.PayMyBuddyServiceImpl;
@@ -43,9 +41,6 @@ public class PayMyBuddyServiceTest {
 
 	@Mock
 	private TransactionRepository transactionRepository;
-
-	@Mock
-	private BuddyRepository buddyRepository;
 
 	@Before
 	public void init() {
@@ -217,8 +212,8 @@ public class PayMyBuddyServiceTest {
 		User userPayMyBuddy = new User("paymybuddy@paymybuddy.com", "buddy", "paymy", "passwordNotEncrypted", 0.0, null,
 				null, null);
 		Double amountOfTheTransaction = 10.0;
-		Transaction transaction = new Transaction(userSender.getEmail(), userReceiver.getEmail(),
-				Date.valueOf(LocalDate.now()), "description", amountOfTheTransaction);
+		Transaction transaction = new Transaction(userSender, userReceiver, Date.valueOf(LocalDate.now()),
+				"description", amountOfTheTransaction);
 
 		Optional<User> userSenderOptional = Optional.of(userSender);
 		Optional<User> userReceiverOptional = Optional.of(userReceiver);
@@ -254,8 +249,8 @@ public class PayMyBuddyServiceTest {
 		User userPayMyBuddy = new User("paymybuddy@paymybuddy.com", "buddy", "paymy", "passwordNotEncrypted", 0.0, null,
 				null, null);
 		Double amountOfTheTransaction = 10.0;
-		Transaction transaction = new Transaction(userSender.getEmail(), userReceiver.getEmail(),
-				Date.valueOf(LocalDate.now()), "description", amountOfTheTransaction);
+		Transaction transaction = new Transaction(userSender, userReceiver, Date.valueOf(LocalDate.now()),
+				"description", amountOfTheTransaction);
 
 		Optional<User> userReceiverOptional = Optional.of(userReceiver);
 		Optional<User> userPayMyBuddyOptional = Optional.of(userPayMyBuddy);
@@ -293,8 +288,8 @@ public class PayMyBuddyServiceTest {
 		User userPayMyBuddy = new User("paymybuddy@paymybuddy.com", "buddy", "paymy", "passwordNotEncrypted", 0.0, null,
 				null, null);
 		Double amountOfTheTransaction = 10.0;
-		Transaction transaction = new Transaction(userSender.getEmail(), userReceiver.getEmail(),
-				Date.valueOf(LocalDate.now()), "description", amountOfTheTransaction);
+		Transaction transaction = new Transaction(userSender, userReceiver, Date.valueOf(LocalDate.now()),
+				"description", amountOfTheTransaction);
 
 		Optional<User> userSenderOptional = Optional.of(userSender);
 		Optional<User> userPayMyBuddyOptional = Optional.of(userPayMyBuddy);
@@ -332,8 +327,8 @@ public class PayMyBuddyServiceTest {
 		User userPayMyBuddy = new User("paymybuddy@paymybuddy.com", "buddy", "paymy", "passwordNotEncrypted", 0.0, null,
 				null, null);
 		Double amountOfTheTransaction = 0.99;
-		Transaction transaction = new Transaction(userSender.getEmail(), userReceiver.getEmail(),
-				Date.valueOf(LocalDate.now()), "description", amountOfTheTransaction);
+		Transaction transaction = new Transaction(userSender, userReceiver, Date.valueOf(LocalDate.now()),
+				"description", amountOfTheTransaction);
 
 		Optional<User> userSenderOptional = Optional.of(userSender);
 		Optional<User> userReceiverOptional = Optional.of(userReceiver);
@@ -414,240 +409,156 @@ public class PayMyBuddyServiceTest {
 	}
 
 	@Test
-	public void givenAddingABuddy_whenAddBuddy_thenItAddTheBuddyToTheUser() {
+	public void givenAddingAFriend_whenAddFriend_thenItAddTheFriendToTheUserFriendList() {
 		// ARRANGE
-		List<Buddy> buddyList = new ArrayList<Buddy>();
-		User user = new User("emailAddBuddy", "lastNameAddBuddy", "firstNameAddBuddy", "passwordNotEncrypted", 20.0,
-				null, null, buddyList);
-		User userBuddy = new User("emailAddBuddy2", "lastNameAddBuddy2", "firstNameAddBuddy2", "passwordNotEncrypted2",
+		List<User> friendList = new ArrayList<User>();
+		User user = new User("emailAddFriend", "lastNameAddFriend", "firstNameAddFriend", "passwordNotEncrypted", 20.0,
+				null, null, friendList);
+		User userFriend = new User("emailAddFriend2", "lastNameAddFriend2", "firstNameAddFriend2",
+				"passwordNotEncrypted2", 0.0, null, null, null);
+		Optional<User> userOptional = Optional.of(user);
+		Optional<User> userFriendOptional = Optional.of(userFriend);
+
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
+		when(userRepository.findByEmail(userFriend.getEmail())).thenReturn(userFriendOptional);
+		when(userRepository.save(user)).thenReturn(user);
+
+		// ACT
+		payMyBuddyServiceImpl.addFriend(user, userFriend);
+
+		// ASSERT
+		verify(userRepository, times(1)).findByEmail(user.getEmail());
+		verify(userRepository, times(1)).findByEmail(userFriend.getEmail());
+		verify(userRepository, times(1)).save(user);
+	}
+
+	@Test
+	public void givenAddingAFriendWithAWrongProvidedUser_whenAddFriend_thenItDoesNotAddTheFriendToTheUserFriendList() {
+		// ARRANGE
+		User user = new User("emailAddFriend", "lastNameAddFriend", "firstNameAddFriend", "passwordNotEncrypted", 20.0,
+				null, null, null);
+		User friend = new User("emailAddFriend2", "lastNameAddFriend2", "firstNameAddFriend2", "passwordNotEncrypted2",
 				0.0, null, null, null);
-		Buddy buddyToAdd = new Buddy(userBuddy.getEmail(), userBuddy.getFirstName(), userBuddy.getLastName(),
-				"description");
-		Optional<User> userOptional = Optional.of(user);
-		Optional<User> userBuddyOptional = Optional.of(userBuddy);
+		Optional<User> friendOptional = Optional.of(friend);
 
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
-		when(userRepository.findByEmail(userBuddy.getEmail())).thenReturn(userBuddyOptional);
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+		when(userRepository.findByEmail(friend.getEmail())).thenReturn(friendOptional);
 		when(userRepository.save(user)).thenReturn(user);
-		when(buddyRepository.save(buddyToAdd)).thenReturn(buddyToAdd);
 
 		// ACT
-		payMyBuddyServiceImpl.addBuddy(user, userBuddy, "description");
+		// In the assert, because it throw the exception (that is what it is tested) but
+		// then it fail the test.
+
+		// ASSERT
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl.addFriend(user, friend));
+		verify(userRepository, times(1)).findByEmail(user.getEmail());
+		verify(userRepository, times(1)).findByEmail(friend.getEmail());
+		verify(userRepository, times(0)).save(user);
+	}
+
+	@Test
+	public void givenAddingAFriendWithAWrongProvidedUserFriend_whenAddFriend_thenItDoesNotAddTheFriendToTheUserFriendList() {
+		// ARRANGE
+		User user = new User("emailAddFriend", "lastNameAddFriend", "firstNameAddFriend", "passwordNotEncrypted", 20.0,
+				null, null, null);
+		User friend = new User("emailAddFriend2", "lastNameAddFriend2", "firstNameAddFriend2", "passwordNotEncrypted2",
+				0.0, null, null, null);
+
+		Optional<User> userOptional = Optional.of(user);
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
+		when(userRepository.findByEmail(friend.getEmail())).thenReturn(Optional.empty());
+		when(userRepository.save(user)).thenReturn(user);
+
+		// ACT
+		// In the assert, because it throw the exception (that is what it is tested) but
+		// then it fail the test.
+
+		// ASSERT
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl.addFriend(user, friend));
+		verify(userRepository, times(1)).findByEmail(user.getEmail());
+		verify(userRepository, times(1)).findByEmail(friend.getEmail());
+		verify(userRepository, times(0)).save(user);
+	}
+
+	@Test
+	public void givenDeletingAFriend_whenDeleteFriend_thenItDeleteTheFriendFromTheUserFriendList() {
+		// ARRANGE
+		User friend = new User("emailDeleteFriend2", "lastNameDeleteFriend2", "firstNameDeleteFriend2",
+				"passwordNotEncrypted", 0.0, null, null, null);
+		List<User> friendList = new ArrayList<User>();
+		friendList.add(friend);
+		User user = new User("emailDeleteFriend", "lastNameDeleteFriend", "firstNameDeleteFriend",
+				"passwordNotEncrypted", 20.0, null, null, friendList);
+		Optional<User> userOptional = Optional.of(user);
+		Optional<User> friendOptional = Optional.of(friend);
+
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
+		when(userRepository.findByEmail(friend.getEmail())).thenReturn(friendOptional);
+		when(userRepository.save(user)).thenReturn(user);
+		when(userRepository.save(friend)).thenReturn(friend);
+		doNothing().when(userRepository).delete(friend);
+
+		// ACT
+		payMyBuddyServiceImpl.deleteFriend(user, friend);
 
 		// ASSERT
 		verify(userRepository, times(1)).findByEmail(user.getEmail());
-		verify(userRepository, times(1)).findByEmail(userBuddy.getEmail());
+		verify(userRepository, times(1)).findByEmail(friend.getEmail());
 		verify(userRepository, times(1)).save(user);
 	}
 
 	@Test
-	public void givenAddingABuddyWithAWrongProvidedUser_whenAddBuddy_thenItDoesNotAddTheBuddyToTheUser() {
+	public void givenDeletingAFriendWithAWrongProvidedUser_whenDeleteFriend_thenItDoesNotDeleteTheFriendFromTheUserFriendList() {
 		// ARRANGE
-		User user = new User("emailAddBuddy", "lastNameAddBuddy", "firstNameAddBuddy", "passwordNotEncrypted", 20.0,
-				null, null, null);
-		User buddy = new User("emailAddBuddy2", "lastNameAddBuddy2", "firstNameAddBuddy2", "passwordNotEncrypted2", 0.0,
-				null, null, null);
-		Optional<User> buddyOptional = Optional.of(buddy);
+		User user = new User("emailDeleteFriend", "lastNameDeleteFriend", "firstNameDeleteFriend",
+				"passwordNotEncrypted", 20.0, null, null, null);
+		User friend = new User("emailDeleteFriend2", "lastNameDeleteFriend2", "firstNameDeleteFriend2",
+				"passwordNotEncrypted", 0.0, null, null, null);
+		Optional<User> friendOptional = Optional.of(friend);
 
 		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
-		when(userRepository.findByEmail(buddy.getEmail())).thenReturn(buddyOptional);
+		when(userRepository.findByEmail(friend.getEmail())).thenReturn(friendOptional);
 		when(userRepository.save(user)).thenReturn(user);
+		when(userRepository.save(friend)).thenReturn(friend);
+		doNothing().when(userRepository).delete(friend);
 
 		// ACT
 		// In the assert, because it throw the exception (that is what it is tested) but
 		// then it fail the test.
 
 		// ASSERT
-		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl.addBuddy(user, buddy, "description"));
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl.deleteFriend(user, friend));
 		verify(userRepository, times(1)).findByEmail(user.getEmail());
-		verify(userRepository, times(1)).findByEmail(buddy.getEmail());
+		verify(userRepository, times(1)).findByEmail(friend.getEmail());
 		verify(userRepository, times(0)).save(user);
+		verify(userRepository, times(0)).delete(friend);
 	}
 
 	@Test
-	public void givenAddingABuddyWithAWrongProvidedUserBuddy_whenAddBuddy_thenItDoesNotAddTheBuddyToTheUser() {
+	public void givenDeletingAFriendWithAWrongProvidedFriend_whenDeleteFriend_thenItDoesNotDeleteTheFriendFromTheUserFriendList() {
 		// ARRANGE
-		User user = new User("emailAddBuddy", "lastNameAddBuddy", "firstNameAddBuddy", "passwordNotEncrypted", 20.0,
-				null, null, null);
-		User buddy = new User("emailAddBuddy2", "lastNameAddBuddy2", "firstNameAddBuddy2", "passwordNotEncrypted2", 0.0,
-				null, null, null);
-
-		Optional<User> userOptional = Optional.of(user);
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
-		when(userRepository.findByEmail(buddy.getEmail())).thenReturn(Optional.empty());
-		when(userRepository.save(user)).thenReturn(user);
-
-		// ACT
-		// In the assert, because it throw the exception (that is what it is tested) but
-		// then it fail the test.
-
-		// ASSERT
-		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl.addBuddy(user, buddy, "description"));
-		verify(userRepository, times(1)).findByEmail(user.getEmail());
-		verify(userRepository, times(1)).findByEmail(buddy.getEmail());
-		verify(userRepository, times(0)).save(user);
-	}
-
-	@Test
-	public void givenUpdatingABuddy_whenUpdateBuddy_thenItUpdateTheBuddy() {
-		// ARRANGE
-		Buddy buddy = new Buddy("emailBuddyUpdateBuddy", "firstNameBuddyUpdateBuddy", "lastNameBuddyUpdateBuddy",
-				"description");
-		List<Buddy> buddyList = new ArrayList<Buddy>();
-		buddyList.add(buddy);
-		User user = new User("emailUpdateBuddy", "lastNameUpdateBuddy", "firstNameUpdateBuddy", "passwordNotEncrypted",
-				20.0, null, null, buddyList);
-		Optional<User> userOptional = Optional.of(user);
-		Optional<Buddy> buddyOptional = Optional.of(buddy);
-
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
-		when(buddyRepository.findByEmailBuddy(buddy.getEmailBuddy())).thenReturn(buddyOptional);
-		when(userRepository.save(user)).thenReturn(user);
-		when(buddyRepository.save(buddy)).thenReturn(buddy);
-
-		// ACT
-		payMyBuddyServiceImpl.updateBuddy(user, buddy, "description");
-
-		// ASSERT
-		verify(userRepository, times(1)).findByEmail(user.getEmail());
-		verify(buddyRepository, times(1)).findByEmailBuddy(buddy.getEmailBuddy());
-		verify(userRepository, times(1)).save(user);
-	}
-
-	@Test
-	public void givenUpdatingABuddyWithAWrongProvidedUser_whenUpdateBuddy_thenItDoesNotUpdateTheBuddy() {
-		// ARRANGE
-		User user = new User("emailUpdateBuddy", "lastNameUpdateBuddy", "firstNameUpdateBuddy", "passwordNotEncrypted",
-				20.0, null, null, null);
-		Buddy buddy = new Buddy("emailBuddyUpdateBuddy", "firstNameBuddyUpdateBuddy", "lastNameBuddyUpdateBuddy",
-				"description");
-		Optional<Buddy> buddyOptional = Optional.of(buddy);
-
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
-		when(buddyRepository.findByEmailBuddy(buddy.getEmailBuddy())).thenReturn(buddyOptional);
-		when(userRepository.save(user)).thenReturn(user);
-		when(buddyRepository.save(buddy)).thenReturn(buddy);
-		doNothing().when(buddyRepository).delete(buddy);
-
-		// ACT
-		// In the assert, because it throw the exception (that is what it is tested) but
-		// then it fail the test.
-
-		// ASSERT
-		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl.updateBuddy(user, buddy, "description"));
-		verify(userRepository, times(1)).findByEmail(user.getEmail());
-		verify(buddyRepository, times(1)).findByEmailBuddy(buddy.getEmailBuddy());
-		verify(userRepository, times(0)).save(user);
-		verify(buddyRepository, times(0)).delete(buddy);
-	}
-
-	@Test
-	public void givenUpdatingABuddyWithAWrongProvidedBuddy_whenUpdateBuddy_thenItDoesNotUpdateTheBuddy() {
-		// ARRANGE
-		User user = new User("emailUpdateBuddy", "lastNameUpdateBuddy", "firstNameUpdateBuddy", "passwordNotEncrypted",
-				20.0, null, null, null);
-		Buddy buddy = new Buddy("emailBuddyUpdateBuddy", "firstNameBuddyUpdateBuddy", "lastNameBuddyUpdateBuddy",
-				"description");
+		User user = new User("emailDeleteFriend", "lastNameDeleteFriend", "firstNameDeleteFriend",
+				"passwordNotEncrypted", 20.0, null, null, null);
+		User friend = new User("emailDeleteFriend2", "lastNameDeleteFriend2", "firstNameDeleteFriend2",
+				"passwordNotEncrypted", 0.0, null, null, null);
 		Optional<User> userOptional = Optional.of(user);
 
 		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
-		when(buddyRepository.findByEmailBuddy(buddy.getEmailBuddy())).thenReturn(Optional.empty());
+		when(userRepository.findByEmail(friend.getEmail())).thenReturn(Optional.empty());
 		when(userRepository.save(user)).thenReturn(user);
-		when(buddyRepository.save(buddy)).thenReturn(buddy);
-		doNothing().when(buddyRepository).delete(buddy);
+		when(userRepository.save(friend)).thenReturn(friend);
+		doNothing().when(userRepository).delete(friend);
 
 		// ACT
 		// In the assert, because it throw the exception (that is what it is tested) but
 		// then it fail the test.
 
 		// ASSERT
-		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl.updateBuddy(user, buddy, "description"));
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl.deleteFriend(user, friend));
 		verify(userRepository, times(1)).findByEmail(user.getEmail());
-		verify(buddyRepository, times(1)).findByEmailBuddy(buddy.getEmailBuddy());
+		verify(userRepository, times(1)).findByEmail(friend.getEmail());
 		verify(userRepository, times(0)).save(user);
-		verify(buddyRepository, times(0)).delete(buddy);
-	}
-
-	@Test
-	public void givenDeletingABuddy_whenDeleteBuddy_thenItDeleteTheBuddy() {
-		// ARRANGE
-		Buddy buddy = new Buddy("emailBuddyDeleteBuddy", "firstNameBuddyDeleteBuddy", "lastNameBuddyDeleteBuddy",
-				"description");
-		List<Buddy> buddyList = new ArrayList<Buddy>();
-		buddyList.add(buddy);
-		User user = new User("emailDeleteBuddy", "lastNameDeleteBuddy", "firstNameDeleteBuddy", "passwordNotEncrypted",
-				20.0, null, null, buddyList);
-		Optional<User> userOptional = Optional.of(user);
-		Optional<Buddy> buddyOptional = Optional.of(buddy);
-
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
-		when(buddyRepository.findByEmailBuddy(buddy.getEmailBuddy())).thenReturn(buddyOptional);
-		when(userRepository.save(user)).thenReturn(user);
-		when(buddyRepository.save(buddy)).thenReturn(buddy);
-		doNothing().when(buddyRepository).delete(buddy);
-
-		// ACT
-		payMyBuddyServiceImpl.deleteBuddy(user, buddy);
-
-		// ASSERT
-		verify(userRepository, times(1)).findByEmail(user.getEmail());
-		verify(buddyRepository, times(1)).findByEmailBuddy(buddy.getEmailBuddy());
-		verify(userRepository, times(1)).save(user);
-		verify(buddyRepository, times(1)).delete(buddy);
-	}
-
-	@Test
-	public void givenDeletingABuddyWithAWrongProvidedUser_whenDeleteBuddy_thenItDoesNotDeleteTheBuddy() {
-		// ARRANGE
-		User user = new User("emailDeleteBuddy", "lastNameDeleteBuddy", "firstNameDeleteBuddy", "passwordNotEncrypted",
-				20.0, null, null, null);
-		Buddy buddy = new Buddy("emailBuddyDeleteBuddy", "firstNameBuddyDeleteBuddy", "lastNameBuddyDeleteBuddy",
-				"description");
-		Optional<Buddy> buddyOptional = Optional.of(buddy);
-
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
-		when(buddyRepository.findByEmailBuddy(buddy.getEmailBuddy())).thenReturn(buddyOptional);
-		when(userRepository.save(user)).thenReturn(user);
-		when(buddyRepository.save(buddy)).thenReturn(buddy);
-		doNothing().when(buddyRepository).delete(buddy);
-
-		// ACT
-		// In the assert, because it throw the exception (that is what it is tested) but
-		// then it fail the test.
-
-		// ASSERT
-		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl.deleteBuddy(user, buddy));
-		verify(userRepository, times(1)).findByEmail(user.getEmail());
-		verify(buddyRepository, times(1)).findByEmailBuddy(buddy.getEmailBuddy());
-		verify(userRepository, times(0)).save(user);
-		verify(buddyRepository, times(0)).delete(buddy);
-	}
-
-	@Test
-	public void givenDeletingABuddyWithAWrongProvidedBuddy_whenDeleteBuddy_thenItDoesNotDeleteTheBuddy() {
-		// ARRANGE
-		User user = new User("emailDeleteBuddy", "lastNameDeleteBuddy", "firstNameDeleteBuddy", "passwordNotEncrypted",
-				20.0, null, null, null);
-		Buddy buddy = new Buddy("emailBuddyDeleteBuddy", "firstNameBuddyDeleteBuddy", "lastNameBuddyDeleteBuddy",
-				"description");
-		Optional<User> userOptional = Optional.of(user);
-
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
-		when(buddyRepository.findByEmailBuddy(buddy.getEmailBuddy())).thenReturn(Optional.empty());
-		when(userRepository.save(user)).thenReturn(user);
-		when(buddyRepository.save(buddy)).thenReturn(buddy);
-		doNothing().when(buddyRepository).delete(buddy);
-
-		// ACT
-		// In the assert, because it throw the exception (that is what it is tested) but
-		// then it fail the test.
-
-		// ASSERT
-		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl.deleteBuddy(user, buddy));
-		verify(userRepository, times(1)).findByEmail(user.getEmail());
-		verify(buddyRepository, times(1)).findByEmailBuddy(buddy.getEmailBuddy());
-		verify(userRepository, times(0)).save(user);
-		verify(buddyRepository, times(0)).delete(buddy);
+		verify(userRepository, times(0)).delete(friend);
 	}
 
 	@Test

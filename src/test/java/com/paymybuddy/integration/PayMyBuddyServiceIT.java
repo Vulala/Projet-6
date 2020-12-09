@@ -21,16 +21,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.paymybuddy.model.BankAccount;
-import com.paymybuddy.model.Buddy;
 import com.paymybuddy.model.Transaction;
 import com.paymybuddy.model.User;
 import com.paymybuddy.service.BankAccountService;
-import com.paymybuddy.service.BuddyService;
 import com.paymybuddy.service.PayMyBuddyService;
 import com.paymybuddy.service.TransactionService;
 import com.paymybuddy.service.UserService;
 import com.paymybuddy.service.impl.BankAccountServiceImpl;
-import com.paymybuddy.service.impl.BuddyServiceImpl;
 import com.paymybuddy.service.impl.PayMyBuddyServiceImpl;
 import com.paymybuddy.service.impl.TransactionServiceImpl;
 import com.paymybuddy.service.impl.UserServiceImpl;
@@ -38,7 +35,7 @@ import com.paymybuddy.service.impl.UserServiceImpl;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 @Import({ PayMyBuddyServiceImpl.class, UserServiceImpl.class, BankAccountServiceImpl.class,
-		TransactionServiceImpl.class, BuddyServiceImpl.class })
+		TransactionServiceImpl.class })
 public class PayMyBuddyServiceIT {
 
 	@Autowired
@@ -54,9 +51,6 @@ public class PayMyBuddyServiceIT {
 	private TransactionService transactionService;
 
 	@Autowired
-	private BuddyService buddyService;
-
-	@Autowired
 	private TestEntityManager testEntityManager;
 
 	@Test
@@ -65,7 +59,6 @@ public class PayMyBuddyServiceIT {
 		assertThat(userService).isNotNull();
 		assertThat(bankAccountService).isNotNull();
 		assertThat(transactionService).isNotNull();
-		assertThat(buddyService).isNotNull();
 		assertThat(testEntityManager).isNotNull();
 	}
 
@@ -223,8 +216,7 @@ public class PayMyBuddyServiceIT {
 		Optional<User> resultUserSender = userService.getUser(userSender.getEmail());
 		Optional<User> resultUserReceiver = userService.getUser(userReceiver.getEmail());
 		Optional<User> resultUserPayMyBuddy = userService.getUser(userPayMyBuddy.getEmail());
-		Iterable<Transaction> resultTransaction = transactionService
-				.findAllTransactionByUserEmail(userSender.getEmail());
+		Iterable<Transaction> resultTransaction = transactionService.findAllByUserSender(userSender);
 
 		// ASSERT
 		assertTrue(resultUserSender.isPresent());
@@ -257,8 +249,7 @@ public class PayMyBuddyServiceIT {
 		Optional<User> resultUserSender = userService.getUser(userSender.getEmail());
 		Optional<User> resultUserReceiver = userService.getUser(userReceiver.getEmail());
 		Optional<User> resultUserPayMyBuddy = userService.getUser(userPayMyBuddy.getEmail());
-		Iterable<Transaction> resultTransaction = transactionService
-				.findAllTransactionByUserEmail(userSender.getEmail());
+		Iterable<Transaction> resultTransaction = transactionService.findAllByUserSender(userSender);
 		// ASSERT
 		assertThrows(NoSuchElementException.class, () -> payMyBuddyService.createTransaction(userSender, userReceiver,
 				"description", amountOfTheTransaction));
@@ -292,8 +283,7 @@ public class PayMyBuddyServiceIT {
 		Optional<User> resultUserSender = userService.getUser(userSender.getEmail());
 		Optional<User> resultUserReceiver = userService.getUser(userReceiver.getEmail());
 		Optional<User> resultUserPayMyBuddy = userService.getUser(userPayMyBuddy.getEmail());
-		Iterable<Transaction> resultTransaction = transactionService
-				.findAllTransactionByUserEmail(userSender.getEmail());
+		Iterable<Transaction> resultTransaction = transactionService.findAllByUserSender(userSender);
 		// ASSERT
 		assertThrows(NoSuchElementException.class, () -> payMyBuddyService.createTransaction(userSender, userReceiver,
 				"description", amountOfTheTransaction));
@@ -329,8 +319,7 @@ public class PayMyBuddyServiceIT {
 		Optional<User> resultUserSender = userService.getUser(userSender.getEmail());
 		Optional<User> resultUserReceiver = userService.getUser(userReceiver.getEmail());
 		Optional<User> resultUserPayMyBuddy = userService.getUser(userPayMyBuddy.getEmail());
-		Iterable<Transaction> resultTransaction = transactionService
-				.findAllTransactionByUserEmail(userSender.getEmail());
+		Iterable<Transaction> resultTransaction = transactionService.findAllByUserSender(userSender);
 		// ASSERT
 		assertThrows(IllegalArgumentException.class, () -> payMyBuddyService.createTransaction(userSender, userReceiver,
 				"description", amountOfTheTransaction));
@@ -366,8 +355,7 @@ public class PayMyBuddyServiceIT {
 		Optional<User> resultUserSender = userService.getUser(userSender.getEmail());
 		Optional<User> resultUserReceiver = userService.getUser(userReceiver.getEmail());
 		Optional<User> resultUserPayMyBuddy = userService.getUser(userPayMyBuddy.getEmail());
-		Iterable<Transaction> resultTransaction = transactionService
-				.findAllTransactionByUserEmail(userSender.getEmail());
+		Iterable<Transaction> resultTransaction = transactionService.findAllByUserSender(userSender);
 
 		// ASSERT
 		assertTrue(resultUserSender.isPresent());
@@ -402,8 +390,7 @@ public class PayMyBuddyServiceIT {
 		Optional<User> resultUserSender = userService.getUser(userSender.getEmail());
 		Optional<User> resultUserReceiver = userService.getUser(userReceiver.getEmail());
 		Optional<User> resultUserPayMyBuddy = userService.getUser(userPayMyBuddy.getEmail());
-		Iterable<Transaction> resultTransaction = transactionService
-				.findAllTransactionByUserEmail(userSender.getEmail());
+		Iterable<Transaction> resultTransaction = transactionService.findAllByUserSender(userSender);
 
 		// ASSERT
 		assertThrows(IllegalArgumentException.class, () -> payMyBuddyService.createTransaction(userSender, userReceiver,
@@ -418,65 +405,173 @@ public class PayMyBuddyServiceIT {
 	}
 
 	@Test
-	public void givenAddingABuddy_whenAddBuddy_thenItAddTheBuddyToTheUser() {
+	public void givenMakingATransactionWithAWrongProvidedPayMyBuddyAccount_whenMakeTransaction_thenItDoesNotTheTransactionAndDoesNotUpdateThePayMyBuddyUser() {
 		// ARRANGE
-		Buddy buddy = new Buddy("emailAddBuddy2", "firstNameBuddy", "lastNameBuddy", "description");
-		List<Buddy> buddyList = new ArrayList<Buddy>();
-		buddyList.add(buddy);
-		User user = new User("emailAddBuddy", "lastNameAddBuddy", "firstNameAddBuddy", "passwordNotEncrypted", 20.0,
-				null, null, new ArrayList<Buddy>());
-		User userBuddy = new User("emailAddBuddy2", "lastNameAddBuddy2", "firstNameAddBuddy2", "passwordNotEncrypted2",
+		User userSender = new User("emailTransaction", "lastNameTransaction", "firstNameTransaction",
+				"passwordNotEncrypted", 20.0, null, null, null);
+		User userReceiver = new User("emailTransaction2", "lastNameTransaction2", "firstNameTransaction2",
+				"passwordNotEncrypted2", 0.0, null, null, null);
+		User userPayMyBuddy = new User("Void", "buddy", "paymy", "passwordNotEncrypted", 0.0, null, null, null);
+		Double amountOfTheTransaction = 10.0;
+		userSender.setId(1);
+		userReceiver.setId(2);
+		userPayMyBuddy.setId(3);
+		testEntityManager.persist(userSender);
+		testEntityManager.persist(userReceiver);
+
+		// ACT
+		// Method used in the assert, because it throw the exception (that is what it is
+		// tested) but then it fail the test.
+		Optional<User> resultUserSender = userService.getUser(userSender.getEmail());
+		Optional<User> resultUserReceiver = userService.getUser(userReceiver.getEmail());
+		Optional<User> resultUserPayMyBuddy = userService.getUser(userPayMyBuddy.getEmail());
+		Iterable<Transaction> resultTransaction = transactionService.findAllByUserSender(userSender);
+
+		// ASSERT
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyService.createTransaction(userSender, userReceiver,
+				"description", amountOfTheTransaction));
+		assertTrue(resultUserSender.isPresent());
+		assertTrue(resultUserReceiver.isPresent());
+		assertFalse(resultUserPayMyBuddy.isPresent());
+		assertEquals(resultUserSender.get().getMoneyAvailable(), 9.5);
+		assertEquals(resultUserReceiver.get().getMoneyAvailable(), 10);
+		assertThrows(NoSuchElementException.class, () -> resultUserPayMyBuddy.get().getMoneyAvailable());
+		assertThat(resultTransaction).size().isEqualTo(0);
+	}
+
+	@Test
+	public void givenAddingAFriend_whenAddFriend_thenItAddTheFriendToTheUserFriendList() {
+		// ARRANGE
+		User user = new User("emailAddFriend", "lastNameAddFriend", "firstNameAddFriend", "passwordNotEncrypted", 20.0,
+				null, null, new ArrayList<User>());
+		User userFriend = new User("emailAddFriend2", "lastNameAddFriend2", "firstNameAddFriend2",
+				"passwordNotEncrypted2", 0.0, null, null, null);
+		user.setId(1);
+		userFriend.setId(2);
+		testEntityManager.persist(user);
+		testEntityManager.persist(userFriend);
+
+		// ACT
+		payMyBuddyService.addFriend(user, userFriend);
+		Optional<User> resultUser = userService.getUser(user.getEmail());
+		Optional<User> resultFriend = userService.getUser(userFriend.getEmail());
+
+		// ASSERT
+		assertTrue(resultUser.isPresent());
+		assertTrue(resultFriend.isPresent());
+		assertTrue(resultUser.get().getFriends().get(0).getEmail().contains(userFriend.getEmail()));
+	}
+
+	@Test
+	public void givenAddingAFriendWithAWrongProvidedUser_whenAddFriend_thenItDoesNotAddTheFriendToTheUserFriendList() {
+		// ARRANGE
+		User user = new User("emailAddFriend", "lastNameAddFriend", "firstNameAddFriend", "passwordNotEncrypted", 20.0,
+				null, null, new ArrayList<User>());
+		User userFriend = new User("emailAddFriend2", "lastNameAddFriend2", "firstNameAddFriend2",
+				"passwordNotEncrypted2", 0.0, null, null, null);
+		userFriend.setId(2);
+		testEntityManager.persist(userFriend);
+
+		// ACT
+		// Method used in the assert, because it throw the exception (that is what it is
+		// tested) but then it fail the test.
+		Optional<User> resultUser = userService.getUser(user.getEmail());
+		Optional<User> resultFriend = userService.getUser(userFriend.getEmail());
+
+		// ASSERT
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyService.addFriend(user, userFriend));
+		assertFalse(resultUser.isPresent());
+		assertTrue(resultFriend.isPresent());
+	}
+
+	@Test
+	public void givenAddingAFriendWithAWrongProvidedFriend_whenAddFriend_thenItDoesNotAddTheFriendToTheUserFriendList() {
+		// ARRANGE
+		User user = new User("emailAddFriend", "lastNameAddFriend", "firstNameAddFriend", "passwordNotEncrypted", 20.0,
+				null, null, new ArrayList<User>());
+		User friend = new User("emailAddFriend2", "lastNameAddFriend2", "firstNameAddFriend2", "passwordNotEncrypted2",
 				0.0, null, null, null);
 		user.setId(1);
-		userBuddy.setId(2);
 		testEntityManager.persist(user);
-		testEntityManager.persist(userBuddy);
-		testEntityManager.persist(buddy);
-
-		// ACT
-		payMyBuddyService.addBuddy(user, userBuddy, "description");
-		Optional<User> resultUser = userService.getUser(user.getEmail());
-		Optional<Buddy> resultBuddy = buddyService.getBuddy(userBuddy.getEmail());
-		Iterable<Buddy> resultBuddys = buddyService.findAllBuddy();
-
-		// ASSERT
-		assertTrue(resultUser.isPresent());
-		assertTrue(resultBuddy.isPresent());
-		assertTrue(resultUser.get().getBuddy().get(0).getEmailBuddy().contains(buddy.getEmailBuddy()));
-		assertThat(resultBuddys).size().isEqualTo(1);
-	}
-
-	@Test
-	public void givenAddingABuddyWithAWrongProvidedUser_whenAddBuddy_thenItDoesNotAddTheBuddyToTheUser() {
-		// ARRANGE
-		User user = new User("emailAddBuddy", "lastNameAddBuddy", "firstNameAddBuddy", "passwordNotEncrypted", 20.0,
-				null, null, new ArrayList<Buddy>());
-		User userBuddy = new User("emailAddBuddy2", "lastNameAddBuddy2", "firstNameAddBuddy2", "passwordNotEncrypted2",
-				0.0, null, null, null);
-		userBuddy.setId(2);
-		testEntityManager.persist(userBuddy);
 
 		// ACT
 		// Method used in the assert, because it throw the exception (that is what it is
 		// tested) but then it fail the test.
 		Optional<User> resultUser = userService.getUser(user.getEmail());
-		Optional<Buddy> resultBuddy = buddyService.getBuddy(userBuddy.getEmail());
-		Iterable<Buddy> resultBuddys = buddyService.findAllBuddy();
+		Optional<User> resultFriend = userService.getUser(friend.getEmail());
 
 		// ASSERT
-		assertThrows(NoSuchElementException.class, () -> payMyBuddyService.addBuddy(user, userBuddy, "description"));
-		assertFalse(resultUser.isPresent());
-		assertFalse(resultBuddy.isPresent());
-		assertThat(resultBuddys).size().isEqualTo(0);
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyService.addFriend(user, friend));
+		assertTrue(resultUser.isPresent());
+		assertFalse(resultFriend.isPresent());
+		assertTrue(resultUser.get().getFriends().isEmpty());
+
 	}
 
 	@Test
-	public void givenAddingABuddyWithAWrongProvidedUserBuddy_whenAddBuddy_thenItDoesNotAddTheBuddyToTheUser() {
+	public void givenDeletingAFriend_whenDeleteFriend_thenItDeleteTheFriendFromTheUserFriendList() {
 		// ARRANGE
-		User user = new User("emailAddBuddy", "lastNameAddBuddy", "firstNameAddBuddy", "passwordNotEncrypted", 20.0,
-				null, null, new ArrayList<Buddy>());
-		User buddy = new User("emailAddBuddy2", "lastNameAddBuddy2", "firstNameAddBuddy2", "passwordNotEncrypted2", 0.0,
-				null, null, null);
+		User friend = new User("emailDeleteFriend2", "lastNameDeleteFriend", "firstNameDeleteFriend",
+				"passwordNotEncrypted", 0.0, null, null, null);
+		List<User> friendList = new ArrayList<User>();
+		friendList.add(friend);
+		User user = new User("emailDeleteFriend", "lastNameDeleteFriend", "firstNameDeleteFriend",
+				"passwordNotEncrypted", 20.0, null, null, friendList);
+		user.setId(1);
+		friend.setId(2);
+		testEntityManager.persist(user);
+		testEntityManager.persist(friend);
+
+		// ACT
+		payMyBuddyService.deleteFriend(user, friend);
+		Optional<User> resultUser = userService.getUser(user.getEmail());
+		Optional<User> resultFriend = userService.getUser(friend.getEmail());
+
+		// ASSERT
+		assertTrue(resultUser.isPresent());
+		assertTrue(resultFriend.isPresent());
+		assertTrue(resultUser.get().getFriends().isEmpty());
+	}
+
+	@Test
+	public void givenDeletingAFriendWithAWrongProvidedUser_whenDeleteFriend_thenItDoesNotDeleteTheFriend() {
+		// ARRANGE
+		User friend = new User("emailDeleteFriend2", "lastNameDeleteFriend", "firstNameDeleteFriend",
+				"passwordNotEncrypted", 0.0, null, null, null);
+		friend.setId(2);
+		testEntityManager.persist(friend);
+
+		List<User> friendList = new ArrayList<User>();
+		friendList.add(friend);
+		User user = new User("emailDeleteFriend", "lastNameDeleteFriend", "firstNameDeleteFriend",
+				"passwordNotEncrypted", 20.0, null, null, friendList);
+		user.setId(1);
+
+		// ACT
+		// Method used in the assert, because it throw the exception (that is what it is
+		// tested) but then it fail the test.
+		Optional<User> resultUser = userService.getUser(user.getEmail());
+		Optional<User> resultFriend = userService.getUser(friend.getEmail());
+
+		// ASSERT
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyService.deleteFriend(user, friend));
+		assertFalse(resultUser.isPresent());
+		assertTrue(resultFriend.isPresent());
+	}
+
+	@Test
+	public void givenDeletingAFriendWithAWrongProvidedFriend_whenDeleteFriend_thenItDoesNotDeleteTheFriend() {
+		// ARRANGE
+		User friend = new User("emailDeleteFriend2", "lastNameDeleteFriend", "firstNameDeleteFriend",
+				"passwordNotEncrypted", 0.0, null, null, null);
+		friend.setId(2);
+		testEntityManager.persist(friend);
+
+		List<User> friendList = new ArrayList<User>();
+		friendList.add(friend);
+		User user = new User("emailDeleteFriend", "lastNameDeleteFriend", "firstNameDeleteFriend",
+				"passwordNotEncrypted", 20.0, null, null, friendList);
+
 		user.setId(1);
 		testEntityManager.persist(user);
 
@@ -484,154 +579,14 @@ public class PayMyBuddyServiceIT {
 		// Method used in the assert, because it throw the exception (that is what it is
 		// tested) but then it fail the test.
 		Optional<User> resultUser = userService.getUser(user.getEmail());
-		Optional<Buddy> resultBuddy = buddyService.getBuddy(buddy.getEmail());
-		Iterable<Buddy> resultBuddys = buddyService.findAllBuddy();
-
-		// ASSERT
-		assertThrows(NoSuchElementException.class, () -> payMyBuddyService.addBuddy(user, buddy, "description"));
-		assertTrue(resultUser.isPresent());
-		assertFalse(resultBuddy.isPresent());
-		assertThat(resultBuddys).size().isEqualTo(0);
-
-	}
-
-	@Test
-	public void givenUpdatingABuddy_whenUpdateBuddy_thenItUpdateTheBuddy() {
-		Buddy buddy = new Buddy("emailBuddyDeleteBuddy", "firstNameBuddyDeleteBuddy", "lastNameBuddyDeleteBuddy",
-				"description");
-		List<Buddy> buddyList = new ArrayList<Buddy>();
-		buddyList.add(buddy);
-		User user = new User("emailDeleteBuddy", "lastNameDeleteBuddy", "firstNameDeleteBuddy", "passwordNotEncrypted",
-				20.0, null, null, buddyList);
-		testEntityManager.persist(user);
-		testEntityManager.persist(buddy);
-
-		// ACT
-		payMyBuddyService.updateBuddy(user, buddy, "descriptionUpdated");
-		Optional<User> resultUser = userService.getUser(user.getEmail());
-		Optional<Buddy> resultBuddy = buddyService.getBuddy(buddy.getEmailBuddy());
-
-		// ASSERT
-		assertTrue(resultUser.isPresent());
-		assertTrue(resultBuddy.isPresent());
-		assertEquals(resultUser.get().getBuddy().get(0).getDescription(), resultBuddy.get().getDescription());
-	}
-
-	@Test
-	public void givenUpdatingABuddyWithAWrongProvidedUser_whenUpdateBuddy_thenItDoesNotUpdateTheBuddy() {
-		// ARRANGE
-		User user = new User("emailUpdateBuddy", "lastNameUpdateBuddy", "firstNameUpdateBuddy", "passwordNotEncrypted",
-				20.0, null, null, new ArrayList<Buddy>());
-		Buddy buddy = new Buddy("emailBuddyUpdateBuddy", "firstNameBuddyUpdateBuddy", "lastNameBuddyUpdateBuddy",
-				"description");
-
-		testEntityManager.persist(buddy);
-
-		// ACT
-		// Method used in the assert, because it throw the exception (that is what it is
-		// tested) but then it fail the test.
-		Optional<User> resultUser = userService.getUser(user.getEmail());
-		Optional<Buddy> resultBuddy = buddyService.getBuddy(buddy.getEmailBuddy());
-
-		// ASSERT
-		assertThrows(NoSuchElementException.class, () -> payMyBuddyService.updateBuddy(user, buddy, "description"));
-		assertFalse(resultUser.isPresent());
-		assertTrue(resultBuddy.isPresent());
-		assertNotEquals(user.getBuddy(), resultBuddy.get());
-
-	}
-
-	@Test
-	public void givenUpdatingABuddyWithAWrongProvidedBuddy_whenUpdateBuddy_thenItDoesNotUpdateTheBuddy() {
-		// ARRANGE
-		User user = new User("emailUpdateBuddy", "lastNameUpdateBuddy", "firstNameUpdateBuddy", "passwordNotEncrypted",
-				20.0, null, null, new ArrayList<Buddy>());
-		Buddy buddy = new Buddy("emailBuddyUpdateBuddy", "firstNameBuddyUpdateBuddy", "lastNameBuddyUpdateBuddy",
-				"description");
-		testEntityManager.persist(user);
-
-		// ACT
-		// Method used in the assert, because it throw the exception (that is what it is
-		// tested) but then it fail the test.
-		Optional<User> resultUser = userService.getUser(user.getEmail());
-		Optional<Buddy> resultBuddy = buddyService.getBuddy(buddy.getEmailBuddy());
-
-		// ASSERT
-		assertThrows(NoSuchElementException.class, () -> payMyBuddyService.updateBuddy(user, buddy, "description"));
-		assertTrue(resultUser.isPresent());
-		assertFalse(resultBuddy.isPresent());
-	}
-
-	@Test
-	public void givenDeletingABuddy_whenDeleteBuddy_thenItDeleteTheBuddy() {
-		// ARRANGE
-		Buddy buddy = new Buddy("emailBuddyDeleteBuddy", "firstNameBuddyDeleteBuddy", "lastNameBuddyDeleteBuddy",
-				"description");
-		List<Buddy> buddyList = new ArrayList<Buddy>();
-		buddyList.add(buddy);
-		User user = new User("emailDeleteBuddy", "lastNameDeleteBuddy", "firstNameDeleteBuddy", "passwordNotEncrypted",
-				20.0, null, null, buddyList);
-		testEntityManager.persist(user);
-		testEntityManager.persist(buddy);
-
-		// ACT
-		payMyBuddyService.deleteBuddy(user, buddy);
-		Optional<User> resultUser = userService.getUser(user.getEmail());
-		Optional<Buddy> resultBuddy = buddyService.getBuddy(buddy.getEmailBuddy());
-
-		// ASSERT
-		assertTrue(resultUser.isPresent());
-		assertFalse(resultBuddy.isPresent());
-		assertTrue(resultUser.get().getBuddy().isEmpty());
-	}
-
-	@Test
-	public void givenDeletingABuddyWithAWrongProvidedUser_whenDeleteBuddy_thenItDoesNotDeleteTheBuddy() {
-		// ARRANGE
-		Buddy buddy = new Buddy("emailBuddyDeleteBuddy", "firstNameBuddyDeleteBuddy", "lastNameBuddyDeleteBuddy",
-				"description");
-		List<Buddy> buddyList = new ArrayList<Buddy>();
-		buddyList.add(buddy);
-		User user = new User("emailDeleteBuddy", "lastNameDeleteBuddy", "firstNameDeleteBuddy", "passwordNotEncrypted",
-				20.0, null, null, buddyList);
-		testEntityManager.persist(buddy);
-
-		// ACT
-		// Method used in the assert, because it throw the exception (that is what it is
-		// tested) but then it fail the test.
-		Optional<User> resultUser = userService.getUser(user.getEmail());
-		Optional<Buddy> resultBuddy = buddyService.getBuddy(buddy.getEmailBuddy());
-
-		// ASSERT
-		assertThrows(NoSuchElementException.class, () -> payMyBuddyService.deleteBuddy(user, buddy));
-		assertFalse(resultUser.isPresent());
-		assertTrue(resultBuddy.isPresent());
-	}
-
-	@Test
-	public void givenDeletingABuddyWithAWrongProvidedBuddy_whenDeleteBuddy_thenItDoesNotDeleteTheBuddy() {
-		// ARRANGE
-		Buddy buddy = new Buddy("emailBuddyDeleteBuddy", "firstNameBuddyDeleteBuddy", "lastNameBuddyDeleteBuddy",
-				"description");
-		List<Buddy> buddyList = new ArrayList<Buddy>();
-		buddyList.add(buddy);
-		User user = new User("emailDeleteBuddy", "lastNameDeleteBuddy", "firstNameDeleteBuddy", "passwordNotEncrypted",
-				20.0, null, null, buddyList);
-		testEntityManager.persist(user);
-		testEntityManager.persist(buddy);
-
-		// ACT
-		// Method used in the assert, because it throw the exception (that is what it is
-		// tested) but then it fail the test.
-		Optional<User> resultUser = userService.getUser(user.getEmail());
-		Optional<Buddy> resultBuddy = buddyService.getBuddy(buddy.getEmailBuddy());
+		Optional<User> resultFriend = userService.getUser(friend.getEmail());
 
 		// ASSERT
 		assertThrows(NoSuchElementException.class,
-				() -> payMyBuddyService.deleteBuddy(user, new Buddy("", "", "", "")));
+				() -> payMyBuddyService.deleteFriend(user, new User("", "", "", "", null, null, null, null)));
 		assertTrue(resultUser.isPresent());
-		assertTrue(resultBuddy.isPresent());
-		assertEquals(resultUser.get().getBuddy().get(0).getDescription(), resultBuddy.get().getDescription());
+		assertTrue(resultFriend.isPresent());
+		assertFalse(resultUser.get().getFriends().isEmpty());
 	}
 
 	@Test

@@ -4,6 +4,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.paymybuddy.model.Transaction;
+import com.paymybuddy.model.User;
 
 /**
  * Interface used to define <b>CRUD</b> operations with the transaction table.
@@ -14,5 +15,5 @@ import com.paymybuddy.model.Transaction;
 @RepositoryRestResource(collectionResourceRel = "transaction", path = "transaction")
 public interface TransactionRepository extends CrudRepository<Transaction, Integer> {
 
-	Iterable<Transaction> findAllByUserEmail(String userEmail);
+	Iterable<Transaction> findAllByUserSender(User user);
 }

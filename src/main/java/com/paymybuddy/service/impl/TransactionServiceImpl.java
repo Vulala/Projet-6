@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.paymybuddy.model.Transaction;
+import com.paymybuddy.model.User;
 import com.paymybuddy.repository.TransactionRepository;
 import com.paymybuddy.service.TransactionService;
 
@@ -30,7 +31,7 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
-	public Iterable<Transaction> findAllTransactionByUserEmail(String email) {
-		return transactionRepository.findAllByUserEmail(email);
+	public Iterable<Transaction> findAllByUserSender(User user) {
+		return transactionRepository.findAllByUserSender(user);
 	}
 }

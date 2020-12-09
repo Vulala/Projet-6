@@ -80,7 +80,7 @@ public class ApplicationDemonstrationIT {
 		User userSendingMoneyUpdated = userRepository.save(userSendingMoney);
 		User userGettingMoneyUpdated = userRepository.save(userReceivingMoney);
 
-		Transaction transaction = new Transaction(emailSendingMoney, emailReceivingMoney, Date.valueOf(LocalDate.now()),
+		Transaction transaction = new Transaction(userSendingMoney, userReceivingMoney, Date.valueOf(LocalDate.now()),
 				"Application Demonstration", amountTransfered);
 
 		Transaction resultTransaction = transactionRepository.save(transaction);
@@ -88,8 +88,8 @@ public class ApplicationDemonstrationIT {
 		assertNotNull(resultTransaction);
 		assertEquals(userSendingMoneyUpdated.getMoneyAvailable(), 19.5);
 		assertEquals(userGettingMoneyUpdated.getMoneyAvailable(), 10);
-		assertEquals(emailSendingMoney, resultTransaction.getUserEmail());
-		assertEquals(emailReceivingMoney, resultTransaction.getUserEmailReceiver());
+		assertEquals(userSendingMoney, resultTransaction.getUserSender());
+		assertEquals(userReceivingMoney, resultTransaction.getUserReceiver());
 		assertEquals(amountTransfered, resultTransaction.getAmount());
 	}
 }

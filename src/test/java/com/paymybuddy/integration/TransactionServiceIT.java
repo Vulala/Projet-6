@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.paymybuddy.model.Transaction;
+import com.paymybuddy.model.User;
 import com.paymybuddy.service.TransactionService;
 import com.paymybuddy.service.impl.TransactionServiceImpl;
 
@@ -34,20 +35,26 @@ public class TransactionServiceIT {
 	@Test
 	public void givenGettingTransactions_whenFindAllTransactionByUserEmail_thenItReturnAllTheTransactionsForTheSpecifiedUser() {
 		// ARRANGE
+		User userSender = new User("emailTransaction", "lastNameTransaction", "firstNameTransaction",
+				"passwordNotEncrypted", 20.0, null, null, null);
+		User userReceiver = new User("emailTransaction2", "lastNameTransaction2", "firstNameTransaction2",
+				"passwordNotEncrypted2", 0.0, null, null, null);
 		java.sql.Date date = new java.sql.Date(0);
-		Transaction transaction = new Transaction("userEmailFindAllTransactionByUserEmail",
-				"userEmailReceiverFindAllTransactionByUserEmail", date, "descriptionFindAllTransactionByUserEmail",
-				10.0);
-		Transaction transaction2 = new Transaction("userEmailFindAllTransactionByUserEmail",
-				"userEmailReceiverFindAllTransactionByUserEmail2", date, "descriptionFindAllTransactionByUserEmail2",
-				10.0);
+		Transaction transaction = new Transaction(userSender, userReceiver, date,
+				"descriptionFindAllTransactionByUserEmail", 10.0);
+		Transaction transaction2 = new Transaction(userSender, userReceiver, date,
+				"descriptionFindAllTransactionByUserEmail2", 10.0);
 		transaction.setId(1);
 		transaction2.setId(2);
+		userSender.setId(1);
+		userReceiver.setId(2);
+		testEntityManager.persist(userSender);
+		testEntityManager.persist(userReceiver);
 		testEntityManager.persist(transaction);
 		testEntityManager.persist(transaction2);
 
 		// ACT
-		Iterable<Transaction> result = transactionService.findAllTransactionByUserEmail(transaction.getUserEmail());
+		Iterable<Transaction> result = transactionService.findAllByUserSender(transaction.getUserSender());
 
 		// ASSERT
 		assertThat(result).size().isGreaterThan(1);

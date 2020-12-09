@@ -2,7 +2,6 @@ BEGIN;
 CREATE SCHEMA IF NOT EXISTS paymybuddy;
 USE paymybuddy;
 COMMIT;
-
 BEGIN;
 CREATE TABLE bank_account
 (
@@ -12,20 +11,16 @@ CREATE TABLE bank_account
    PRIMARY KEY (id)
 );
 COMMIT;
-
 BEGIN;
 CREATE TABLE transaction
 (
    id INT AUTO_INCREMENT NOT NULL,
-   user_email VARCHAR (64) NOT NULL,
    amount DECIMAL NOT NULL,
    date DATE,
    description VARCHAR (128),
-   user_email_receiver VARCHAR (64) NOT NULL,
    PRIMARY KEY (id)
 );
 COMMIT;
-
 BEGIN;
 CREATE TABLE user
 (
@@ -35,63 +30,40 @@ CREATE TABLE user
    last_name VARCHAR (32),
    money_available DECIMAL NOT NULL,
    password VARCHAR (255) NOT NULL,
-   email_buddy VARCHAR (64) DEFAULT NULL,
    PRIMARY KEY (id)
 );
 COMMIT;
-
 BEGIN;
-CREATE TABLE buddy
+CREATE TABLE user_friends
 (
-   email_buddy VARCHAR (64) NOT NULL,
-   first_name VARCHAR (32),
-   last_name VARCHAR (32),
-   description VARCHAR (128),
-   PRIMARY KEY (email_buddy)
+   user_id INT,
+   friends_id INT
 );
 COMMIT;
-
-BEGIN;
-CREATE TABLE user_buddy
-(
-   user_id INTEGER NOT NULL,
-   buddy_email_buddy VARCHAR (64) NOT NULL,
-   PRIMARY KEY
-   (
-      user_id,
-      buddy_email_buddy
-   )
-);
-COMMIT;
-
 -- -------| FOREIGN KEYS |-------
-
-BEGIN;
-ALTER TABLE user_buddy ADD CONSTRAINT user_buddy_user_id_fk FOREIGN KEY (user_id) REFERENCES user (id);
-
-ALTER TABLE user_buddy ADD CONSTRAINT user_buddy_email_buddy_fk FOREIGN KEY (buddy_email_buddy) REFERENCES buddy (email_buddy);
-COMMIT;
-
 BEGIN;
 ALTER TABLE bank_account ADD COLUMN user INT;
 ALTER TABLE bank_account ADD CONSTRAINT bank_account_user_id_fk FOREIGN KEY (user) REFERENCES user (id);
 COMMIT;
-
 BEGIN;
-ALTER TABLE transaction ADD COLUMN user INT;
-ALTER TABLE transaction ADD CONSTRAINT transaction_user_id_fk FOREIGN KEY (user) REFERENCES user (id);
+ALTER TABLE transaction ADD COLUMN user_sender INT;
+ALTER TABLE transaction ADD CONSTRAINT transaction_user_sender_id_fk FOREIGN KEY (user_sender) REFERENCES user (id);
 COMMIT;
-
+BEGIN;
+ALTER TABLE transaction ADD COLUMN user_receiver INT;
+ALTER TABLE transaction ADD CONSTRAINT transaction_user_receiver_id_fk FOREIGN KEY (user_receiver) REFERENCES user (id);
+COMMIT;
 BEGIN;
 ALTER TABLE user ADD COLUMN bank_account INT;
 ALTER TABLE user ADD CONSTRAINT user_bank_account_id_fk FOREIGN KEY (bank_account) REFERENCES bank_account (id);
-
 ALTER TABLE user ADD COLUMN transaction_id INT;
 ALTER TABLE user ADD CONSTRAINT user_transaction_id_fk FOREIGN KEY (transaction_id) REFERENCES transaction (id);
 COMMIT;
-
+BEGIN;
+ALTER TABLE user_friends ADD CONSTRAINT user_friends_user_id_fk FOREIGN KEY (user_id) REFERENCES user (id);
+ALTER TABLE user_friends ADD CONSTRAINT user_friends_friends_id_fk FOREIGN KEY (friends_id) REFERENCES user (id);
+COMMIT;
 -- -------| Data used for testing purpose |-------
-
 BEGIN;
 INSERT INTO paymybuddy.user
 (
@@ -110,7 +82,6 @@ VALUES
    '$2y$10$S6MsFs7iQk0yfKyTAVC51ONE2nD8i0ppkf.0dAmrFh2lByTZX69nO'
 );
 COMMIT;
-
 BEGIN;
 INSERT INTO paymybuddy.user
 (
@@ -129,24 +100,6 @@ VALUES
    '$2y$10$hZFWG.lYw7Zr8jSi0JeP0OCrWaCgWeAWJwR/5.d3FudKXOBAfqjZm'
 );
 COMMIT;
-
-BEGIN;
-INSERT INTO paymybuddy.buddy
-(
-   email_buddy,
-   first_name,
-   last_name,
-   description
-)
-VALUES
-(
-   'emailTest2',
-   'firstNameTest',
-   'lastNameTest',
-   'descriptionTest'
-);
-COMMIT;
-
 BEGIN;
 INSERT INTO paymybuddy.bank_account
 (
@@ -159,20 +112,15 @@ VALUES
    'descriptionTest'
 );
 COMMIT;
-
 BEGIN;
 INSERT INTO paymybuddy.transaction
 (
-   user_email,
    amount,
-   description,
-   user_email_receiver
+   description
 )
 VALUES
 (
-   'emailTest',
    '10.0',
-   'descriptionTest',
-   'userEmailReceiverTest'
+   'descriptionTest'
 );
 COMMIT;

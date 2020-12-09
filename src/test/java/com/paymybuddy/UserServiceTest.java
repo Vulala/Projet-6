@@ -118,7 +118,7 @@ public class UserServiceTest {
 		userToUpdate.get().setMoneyAvailable(10.0);
 		userToUpdate.get().setBankAccount(null);
 		userToUpdate.get().setTransaction(null);
-		userToUpdate.get().setBuddy(null);
+		userToUpdate.get().setFriends(null);
 		userServiceImpl.updateUser(userToUpdate.get());
 		Optional<User> result = userServiceImpl.getUser(user.getEmail());
 

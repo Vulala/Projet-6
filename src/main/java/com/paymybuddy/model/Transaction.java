@@ -12,21 +12,22 @@ public class Transaction {
 
 	@Id
 	private int id;
-	private String userEmail;
-	private String userEmailReceiver;
+	@ManyToOne
+	@JoinColumn(name = "userSender")
+	private User userSender;
+	@ManyToOne
+	@JoinColumn(name = "userReceiver")
+	private User userReceiver;
 	private Date date;
 	private String description;
 	private Double amount;
-	@ManyToOne
-	@JoinColumn(name = "user")
-	private User user;
 
 	protected Transaction() {
 	}
 
-	public Transaction(String userEmail, String userEmailReceiver, Date date, String description, Double amount) {
-		this.userEmail = userEmail;
-		this.userEmailReceiver = userEmailReceiver;
+	public Transaction(User userSender, User userReceiver, Date date, String description, Double amount) {
+		this.userSender = userSender;
+		this.userReceiver = userReceiver;
 		this.date = date;
 		this.description = description;
 		this.amount = amount;
@@ -40,20 +41,20 @@ public class Transaction {
 		this.id = id;
 	}
 
-	public String getUserEmail() {
-		return userEmail;
+	public User getUserSender() {
+		return userSender;
 	}
 
-	public void setUserEmail(String userEmail) {
-		this.userEmail = userEmail;
+	public void setUserSender(User userSender) {
+		this.userSender = userSender;
 	}
 
-	public String getUserEmailReceiver() {
-		return userEmailReceiver;
+	public User getUserReceiver() {
+		return userReceiver;
 	}
 
-	public void setUserEmailReceiver(String userEmailReceiver) {
-		this.userEmailReceiver = userEmailReceiver;
+	public void setUserReceiver(User userReceiver) {
+		this.userReceiver = userReceiver;
 	}
 
 	public Date getDate() {
@@ -80,14 +81,10 @@ public class Transaction {
 		this.amount = amount;
 	}
 
-	public User getUser() {
-		return user;
-	}
-
 	@Override
 	public String toString() {
-		return "Transaction [id=" + id + ", userEmail=" + userEmail + ", userEmailReceiver=" + userEmailReceiver
-				+ ", date=" + date + ", description=" + description + ", amount=" + amount + "]";
+		return "Transaction [id=" + id + ", userSender=" + userSender + ", userReceiver=" + userReceiver + ", date="
+				+ date + ", description=" + description + ", amount=" + amount + "]";
 	}
 
 }

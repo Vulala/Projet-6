@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.paymybuddy.model.Transaction;
+import com.paymybuddy.model.User;
 import com.paymybuddy.repository.TransactionRepository;
 
 @RunWith(SpringRunner.class)
@@ -38,10 +39,17 @@ public class TransactionTest {
 	@Test
 	public void givenGettingATransaction_whenFindById_thenItReturnTheRightTransaction() {
 		// ARRANGE
+		User userSender = new User("emailFindById", "lastNameFindById", "firstNameFindById", "passwordNotEncrypted",
+				20.0, null, null, null);
+		User userReceiver = new User("emailFindById2", "lastNameFindById2", "firstNameFindById2",
+				"passwordNotEncrypted2", 0.0, null, null, null);
 		java.sql.Date date = new java.sql.Date(0);
-		Transaction transaction = new Transaction("userEmailFindById", "userEmailReceiverFindById", date,
-				"descriptionFindById", 10.0);
+		Transaction transaction = new Transaction(userSender, userReceiver, date, "descriptionFindById", 10.0);
 		transaction.setId(1);
+		userSender.setId(1);
+		userReceiver.setId(2);
+		testEntityManager.persist(userSender);
+		testEntityManager.persist(userReceiver);
 		testEntityManager.persist(transaction);
 
 		// ACT
@@ -49,7 +57,7 @@ public class TransactionTest {
 
 		// ASSERT
 		assertTrue(result.isPresent());
-		assertEquals(transaction.getUserEmail(), result.get().getUserEmail());
+		assertEquals(transaction.getUserSender().getEmail(), result.get().getUserSender().getEmail());
 		assertEquals(transaction.getAmount(), result.get().getAmount());
 		assertEquals(transaction.getDescription(), result.get().getDescription());
 	}
@@ -57,13 +65,19 @@ public class TransactionTest {
 	@Test
 	public void givenGettingTransactions_whenFindAll_thenItReturnAllTheTransactionsForTheSpecifiedUser() {
 		// ARRANGE
+		User userSender = new User("emailFindAll", "lastNameFindAll", "firstNameFindAll", "passwordNotEncrypted", 20.0,
+				null, null, null);
+		User userReceiver = new User("emailFindAll2", "lastNameFindAll2", "firstNameFindAll2", "passwordNotEncrypted2",
+				0.0, null, null, null);
 		java.sql.Date date = new java.sql.Date(0);
-		Transaction transaction = new Transaction("userEmailFindAll", "userEmailReceiverFindAll", date,
-				"descriptionFindAll", 10.0);
-		Transaction transaction2 = new Transaction("userEmailFindAll", "userEmailReceiverFindAll2", date,
-				"descriptionFindAll2", 10.0);
+		Transaction transaction = new Transaction(userSender, userReceiver, date, "descriptionFindById", 10.0);
+		Transaction transaction2 = new Transaction(userSender, userReceiver, date, "descriptionFindAll2", 10.0);
 		transaction.setId(1);
 		transaction2.setId(2);
+		userSender.setId(1);
+		userReceiver.setId(2);
+		testEntityManager.persist(userSender);
+		testEntityManager.persist(userReceiver);
 		testEntityManager.persist(transaction);
 		testEntityManager.persist(transaction2);
 
@@ -75,20 +89,27 @@ public class TransactionTest {
 	}
 
 	@Test
-	public void givenGettingTransactions_whenFindAllByUserEmail_thenItReturnAllTheTransactionsForTheSpecifiedUser() {
+	public void givenGettingTransactions_whenFindAllByUserSender_thenItReturnAllTheTransactionsForTheSpecifiedUser() {
 		// ARRANGE
+		User userSender = new User("emailFindAllByUserSender", "lastNameFindAllByUserSender",
+				"firstNameFindAllByUserSender", "passwordNotEncrypted", 20.0, null, null, null);
+		User userReceiver = new User("emailFindAllByUserSender2", "lastNameFindAllByUserSender2",
+				"firstNameFindAllByUserSender2", "passwordNotEncrypted2", 0.0, null, null, null);
 		java.sql.Date date = new java.sql.Date(0);
-		Transaction transaction = new Transaction("userEmailFindAllByUserEmail", "userEmailReceiverFindAllByUserEmail2",
-				date, "descriptionFindAllByUserEmail", 10.0);
-		Transaction transaction2 = new Transaction("userEmailFindAllByUserEmail",
-				"userEmailReceiverFindAllByUserEmail2", date, "descriptionFindAllByUserEmail2", 10.0);
+		Transaction transaction = new Transaction(userSender, userReceiver, date, "descriptionFindById", 10.0);
+		Transaction transaction2 = new Transaction(userSender, userReceiver, date, "descriptionFindAllByUserEmail2",
+				10.0);
 		transaction.setId(1);
 		transaction2.setId(2);
+		userSender.setId(1);
+		userReceiver.setId(2);
+		testEntityManager.persist(userSender);
+		testEntityManager.persist(userReceiver);
 		testEntityManager.persist(transaction);
 		testEntityManager.persist(transaction2);
 
 		// ACT
-		Iterable<Transaction> result = transactionRepository.findAllByUserEmail(transaction.getUserEmail());
+		Iterable<Transaction> result = transactionRepository.findAllByUserSender(transaction.getUserSender());
 
 		// ASSERT
 		assertThat(result).size().isBetween(2, 2);
@@ -97,28 +118,42 @@ public class TransactionTest {
 	@Test
 	public void givenSavingATransaction_whenSave_thenItSaveTheTransaction() {
 		// ARRANGE
+		User userSender = new User("emailSave", "lastNameSave", "firstNameSave", "passwordNotEncrypted", 20.0, null,
+				null, null);
+		User userReceiver = new User("emailSave2", "lastNameSave2", "firstNameSave2", "passwordNotEncrypted2", 0.0,
+				null, null, null);
 		java.sql.Date date = new java.sql.Date(0);
-		Transaction transaction = new Transaction("userEmailSave", "userEmailReceiverSave", date, "descriptionSave",
-				10.0);
+		Transaction transaction = new Transaction(userSender, userReceiver, date, "descriptionFindById", 10.0);
 		transaction.setId(1);
+		userSender.setId(1);
+		userReceiver.setId(2);
+		testEntityManager.persist(userSender);
+		testEntityManager.persist(userReceiver);
 
 		// ACT
 		transactionRepository.save(transaction);
 		Optional<Transaction> result = transactionRepository.findById(1);
 
 		// ASSERT
-		assertEquals(transaction.getUserEmail(), result.get().getUserEmail());
+		assertEquals(transaction.getUserSender().getEmail(), result.get().getUserSender().getEmail());
 		assertEquals(transaction.getDate(), result.get().getDate());
-		assertEquals(transaction.getUserEmailReceiver(), result.get().getUserEmailReceiver());
+		assertEquals(transaction.getUserReceiver(), result.get().getUserReceiver());
 	}
 
 	@Test
 	public void givenUpdatingATransaction_whenFindSetSave_thenItUpdateTheTransaction() {
 		// ARRANGE
+		User userSender = new User("emailFindSetSave", "lastNameFindSetSave", "firstNameFindSetSave",
+				"passwordNotEncrypted", 20.0, null, null, null);
+		User userReceiver = new User("emailFindSetSave2", "lastNameFindSetSave2", "firstNameFindSetSave2",
+				"passwordNotEncrypted2", 0.0, null, null, null);
 		java.sql.Date date = new java.sql.Date(0);
-		Transaction transaction = new Transaction("userEmailUpdate", "userEmailReceiverUpdate", date,
-				"descriptionUpdate", 10.0);
+		Transaction transaction = new Transaction(userSender, userReceiver, date, "descriptionFindById", 10.0);
 		transaction.setId(1);
+		userSender.setId(1);
+		userReceiver.setId(2);
+		testEntityManager.persist(userSender);
+		testEntityManager.persist(userReceiver);
 		testEntityManager.persist(transaction);
 
 		// ACT
@@ -126,22 +161,28 @@ public class TransactionTest {
 		transactionToUpdate.get().setDescription("descriptionUpdated");
 		transactionToUpdate.get().setAmount(20.0);
 		transactionToUpdate.get().setDate(date);
-		transactionToUpdate.get().setUserEmailReceiver("userEmailReceiverUpdated");
 		transactionRepository.save(transactionToUpdate.get());
 		Optional<Transaction> result = transactionRepository.findById(1);
 
 		// ASSERT
-		assertEquals(transactionToUpdate.get().getUserEmail(), result.get().getUserEmail());
+		assertEquals(transactionToUpdate.get().getUserSender().getEmail(), result.get().getUserSender().getEmail());
 		assertEquals(transactionToUpdate.get().getDescription(), result.get().getDescription());
 	}
 
 	@Test
 	public void givenDeletingATransaction_whenDelete_thenItDeleteTheTransaction() {
 		// ARRANGE
+		User userSender = new User("emailDelete", "lastNameDelete", "firstNameDelete", "passwordNotEncrypted", 20.0,
+				null, null, null);
+		User userReceiver = new User("emailDelete2", "lastNameDelete2", "firstNameDelete2", "passwordNotEncrypted2",
+				0.0, null, null, null);
 		java.sql.Date date = new java.sql.Date(0);
-		Transaction transaction = new Transaction("userEmailDelete", "userEmailReceiverDelete", date,
-				"descriptionDelete", 10.0);
+		Transaction transaction = new Transaction(userSender, userReceiver, date, "descriptionFindById", 10.0);
 		transaction.setId(1);
+		userSender.setId(1);
+		userReceiver.setId(2);
+		testEntityManager.persist(userSender);
+		testEntityManager.persist(userReceiver);
 		testEntityManager.persist(transaction);
 
 		// ACT
@@ -156,9 +197,12 @@ public class TransactionTest {
 	@Test
 	public void givenGettingAWrongTransaction_whenFindById_thenItThrowsAnException() {
 		// ARRANGE
+		User userSender = new User("emailFindById", "lastNameFindById", "firstNameFindById", "passwordNotEncrypted",
+				20.0, null, null, null);
+		User userReceiver = new User("emailFindById2", "lastNameFindById2", "firstNameFindById2",
+				"passwordNotEncrypted2", 0.0, null, null, null);
 		java.sql.Date date = new java.sql.Date(0);
-		Transaction transaction = new Transaction("userEmailFindById", "userEmailReceiverFindById", date,
-				"descriptionFindById", 10.0);
+		Transaction transaction = new Transaction(userSender, userReceiver, date, "descriptionFindById", 10.0);
 		testEntityManager.persist(transaction);
 
 		// ACT
@@ -166,7 +210,7 @@ public class TransactionTest {
 
 		// ASSERT
 		assertFalse(result.isPresent());
-		assertThrows(NoSuchElementException.class, () -> result.get().getUserEmail());
+		assertThrows(NoSuchElementException.class, () -> result.get().getUserSender().getEmail());
 	}
 
 }

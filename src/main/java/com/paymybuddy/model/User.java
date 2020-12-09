@@ -6,7 +6,6 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -26,18 +25,16 @@ public class User {
 	@OneToOne
 	@JoinColumn(name = "bank_account")
 	private BankAccount bankAccount;
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "userSender")
 	private List<Transaction> transaction = new ArrayList<>();
 	@ManyToMany
-	@JoinTable(name = "user_buddy", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
-			@JoinColumn(name = "buddy_emailBuddy") })
-	private List<Buddy> buddy = new ArrayList<>();;
+	private List<User> friends = new ArrayList<>();
 
 	protected User() {
 	}
 
 	public User(String email, String lastName, String firstName, String password, Double moneyAvailable,
-			BankAccount bankAccount, List<Transaction> transaction, List<Buddy> buddy) {
+			BankAccount bankAccount, List<Transaction> transaction, List<User> friends) {
 		this.email = email;
 		this.lastName = lastName;
 		this.firstName = firstName;
@@ -45,7 +42,7 @@ public class User {
 		this.moneyAvailable = moneyAvailable;
 		this.bankAccount = bankAccount;
 		this.transaction = transaction;
-		this.buddy = buddy;
+		this.friends = friends;
 	}
 
 	public int getId() {
@@ -113,19 +110,19 @@ public class User {
 		this.transaction = transaction;
 	}
 
-	public List<Buddy> getBuddy() {
-		return buddy;
+	public List<User> getFriends() {
+		return friends;
 	}
 
-	public void setBuddy(List<Buddy> buddy) {
-		this.buddy = buddy;
+	public void setFriends(List<User> friends) {
+		this.friends = friends;
 	}
 
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", email=" + email + ", lastName=" + lastName + ", firstName=" + firstName
 				+ ", password=" + password + ", moneyAvailable=" + moneyAvailable + ", bankAccount=" + bankAccount
-				+ ", transaction=" + transaction + ", buddy=" + buddy + "]";
+				+ ", transaction=" + transaction + ", friends=" + friends + "]";
 	}
 
 }

@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.paymybuddy.model.Transaction;
+import com.paymybuddy.model.User;
 import com.paymybuddy.repository.TransactionRepository;
 import com.paymybuddy.service.impl.TransactionServiceImpl;
 
@@ -37,26 +38,28 @@ public class TransactionServiceTest {
 	}
 
 	@Test
-	public void givenGettingTransactions_whenFindAllTransactionByUserEmail_thenItReturnAllTheTransactionsForTheSpecifiedUser() {
+	public void givenGettingTransactions_whenFindAllTransactionByUserSender_thenItReturnAllTheTransactionsForTheSpecifiedUser() {
 		// ARRANGE
+		User userSender = new User("emailFindAllTransactionByUserSender", "lastNameFindAllTransactionByUserSender",
+				"firstNameFindAllTransactionByUserSender", "passwordNotEncrypted", 20.0, null, null, null);
+		User userReceiver = new User("emailFindAllTransactionByUserSender2", "lastNameFindAllTransactionByUserSender2",
+				"firstNameFindAllTransactionByUserSender2", "passwordNotEncrypted2", 0.0, null, null, null);
 		java.sql.Date date = new java.sql.Date(0);
-		Transaction transaction = new Transaction("userEmailFindAllTransactionByUserEmail",
-				"userEmailReceiverFindAllTransactionByUserEmail2", date, "descriptionFindAllTransactionByUserEmail",
-				10.0);
-		Transaction transaction2 = new Transaction("userEmailFindAllTransactionByUserEmail",
-				"userEmailReceiverFindAllTransactionByUserEmail2", date, "descriptionFindAllTransactionByUserEmail2",
-				10.0);
+		Transaction transaction = new Transaction(userSender, userReceiver, date,
+				"descriptionFindAllTransactionByUserEmail", 10.0);
+		Transaction transaction2 = new Transaction(userSender, userReceiver, date,
+				"descriptionFindAllTransactionByUserEmail2", 10.0);
 		List<Transaction> transactionIterable = new ArrayList<Transaction>();
 		transactionIterable.add(transaction);
 		transactionIterable.add(transaction2);
-		when(transactionRepository.findAllByUserEmail(transaction.getUserEmail())).thenReturn(transactionIterable);
+		when(transactionRepository.findAllByUserSender(transaction.getUserSender())).thenReturn(transactionIterable);
 
 		// ACT
-		Iterable<Transaction> result = transactionServiceImpl.findAllTransactionByUserEmail(transaction.getUserEmail());
+		Iterable<Transaction> result = transactionServiceImpl.findAllByUserSender(transaction.getUserSender());
 
 		// ASSERT
 		assertThat(result).size().isGreaterThan(1);
-		verify(transactionRepository, times(1)).findAllByUserEmail(transaction.getUserEmail());
+		verify(transactionRepository, times(1)).findAllByUserSender(transaction.getUserSender());
 	}
 
 }
