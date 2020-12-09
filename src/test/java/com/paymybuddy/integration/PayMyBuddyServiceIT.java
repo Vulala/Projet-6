@@ -702,4 +702,147 @@ public class PayMyBuddyServiceIT {
 
 	}
 
+	@Test
+	public void givenTransferingMoneyOnTheBankAccount_whenTransfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount_thenItTransfertTheMoney() {
+		// ARRANGE
+		User user = new User("emailAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"lastNameAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"firstNameAddMoneyOnThePayMyBuddyAccountFromBankAccount", "passwordNotEncrypted", 20.0, null, null,
+				null);
+		BankAccount bankAccount = new BankAccount("IBANAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"descriptionAddMoneyOnThePayMyBuddyAccountFromBankAccount");
+		Double amountTransfered = 10.0;
+		user.setBankAccount(bankAccount);
+		testEntityManager.persist(user);
+		testEntityManager.persist(bankAccount);
+
+		// ACT
+		payMyBuddyService.transfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount(user, bankAccount,
+				amountTransfered);
+		Optional<User> resultUser = userService.getUser(user.getEmail());
+		Optional<BankAccount> resultBankAccount = bankAccountService.getBankAccount(bankAccount.getIBAN());
+
+		// ASSERT
+		assertTrue(resultUser.isPresent());
+		assertTrue(resultBankAccount.isPresent());
+		assertEquals(resultUser.get().getMoneyAvailable(), 10);
+	}
+
+	@Test
+	public void givenTransferingMoneyOnTheBankAccountWithAWrongProvidedUser_whenTransfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount_thenItDoesNotTransfertTheMoney() {
+		// ARRANGE
+		User user = new User("emailAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"lastNameAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"firstNameAddMoneyOnThePayMyBuddyAccountFromBankAccount", "passwordNotEncrypted", 20.0, null, null,
+				null);
+		BankAccount bankAccount = new BankAccount("IBANAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"descriptionAddMoneyOnThePayMyBuddyAccountFromBankAccount");
+		Double amountTransfered = 10.0;
+		user.setBankAccount(bankAccount);
+		testEntityManager.persist(bankAccount);
+
+		// ACT
+		// Method used in the assert, because it throw the exception (that is what it is
+		// tested) but then it fail the test.
+		Optional<User> resultUser = userService.getUser(user.getEmail());
+		Optional<BankAccount> resultBankAccount = bankAccountService.getBankAccount(bankAccount.getIBAN());
+
+		// ASSERT
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyService
+				.transfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount(user, bankAccount, amountTransfered));
+		assertFalse(resultUser.isPresent());
+		assertTrue(resultBankAccount.isPresent());
+		assertEquals(user.getMoneyAvailable(), 20);
+
+	}
+
+	@Test
+	public void givenTransferingMoneyOnTheBankAccountWithAWrongProvidedBankAccount_whenTransfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount_thenItDoesNotTransfertTheMoney() {
+		// ARRANGE
+		User user = new User("emailAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"lastNameAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"firstNameAddMoneyOnThePayMyBuddyAccountFromBankAccount", "passwordNotEncrypted", 20.0, null, null,
+				null);
+		BankAccount bankAccount = new BankAccount("IBANAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"descriptionAddMoneyOnThePayMyBuddyAccountFromBankAccount");
+		Double amountTransfered = 10.0;
+		testEntityManager.persist(user);
+
+		// ACT
+		// Method used in the assert, because it throw the exception (that is what it is
+		// tested) but then it fail the test.
+		Optional<User> resultUser = userService.getUser(user.getEmail());
+		Optional<BankAccount> resultBankAccount = bankAccountService.getBankAccount(bankAccount.getIBAN());
+
+		// ASSERT
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyService
+				.transfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount(user, bankAccount, amountTransfered));
+		assertTrue(resultUser.isPresent());
+		assertFalse(resultBankAccount.isPresent());
+		assertEquals(resultUser.get().getMoneyAvailable(), 20);
+
+	}
+
+	@Test
+	public void givenTransferingMoneyOnTheBankAccountWithANotAssociatedBankAccount_whenTransfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount_thenItDoesNotTransfertTheMoney() {
+		// ARRANGE
+		BankAccount bankAccountUser = new BankAccount("Void", "Void");
+		User user = new User("emailAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"lastNameAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"firstNameAddMoneyOnThePayMyBuddyAccountFromBankAccount", "passwordNotEncrypted", 20.0, bankAccountUser,
+				null, null);
+		BankAccount bankAccount = new BankAccount("IBANAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"descriptionAddMoneyOnThePayMyBuddyAccountFromBankAccount");
+		Double amountTransfered = 10.0;
+		bankAccount.setId(1);
+		bankAccountUser.setId(2);
+		testEntityManager.persist(user);
+		testEntityManager.persist(bankAccount);
+		testEntityManager.persist(bankAccountUser);
+
+		// ACT
+		// Method used in the assert, because it throw the exception (that is what it is
+		// tested) but then it fail the test.
+		Optional<User> resultUser = userService.getUser(user.getEmail());
+		Optional<BankAccount> resultBankAccount = bankAccountService.getBankAccount(bankAccount.getIBAN());
+
+		// ASSERT
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyService
+				.transfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount(user, bankAccount, amountTransfered));
+		assertTrue(resultUser.isPresent());
+		assertTrue(resultBankAccount.isPresent());
+		assertNotEquals(resultBankAccount.get(), user.getBankAccount());
+		assertEquals(resultUser.get().getMoneyAvailable(), 20);
+
+	}
+
+	@Test
+	public void givenTransferingMoneyOnTheBankAccountWithNotEnoughMoney_whenTransfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount_thenItDoesNotTransfertTheMoney() {
+		// ARRANGE
+		BankAccount bankAccount = new BankAccount("IBANAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"descriptionAddMoneyOnThePayMyBuddyAccountFromBankAccount");
+		User user = new User("emailAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"lastNameAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"firstNameAddMoneyOnThePayMyBuddyAccountFromBankAccount", "passwordNotEncrypted", 20.0, bankAccount,
+				null, null);
+		Double amountTransfered = 100.0;
+		testEntityManager.persist(user);
+		testEntityManager.persist(bankAccount);
+
+		// ACT
+		// Method used in the assert, because it throw the exception (that is what it is
+		// tested) but then it fail the test.
+		Optional<User> resultUser = userService.getUser(user.getEmail());
+		Optional<BankAccount> resultBankAccount = bankAccountService.getBankAccount(bankAccount.getIBAN());
+
+		// ASSERT
+		assertThrows(IllegalArgumentException.class, () -> payMyBuddyService
+				.transfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount(user, bankAccount, amountTransfered));
+		assertTrue(resultUser.isPresent());
+		assertTrue(resultBankAccount.isPresent());
+		assertEquals(resultBankAccount.get(), user.getBankAccount());
+		assertTrue(resultUser.get().getMoneyAvailable() < amountTransfered);
+		assertEquals(resultUser.get().getMoneyAvailable(), 20);
+
+	}
 }

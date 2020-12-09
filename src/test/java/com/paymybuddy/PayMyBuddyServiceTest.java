@@ -677,4 +677,149 @@ public class PayMyBuddyServiceTest {
 		verify(userRepository, times(0)).save(user);
 	}
 
+	@Test
+	public void givenTransferingMoneyOnTheBankAccount_whenTransfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount_thenItTransfertTheMoney() {
+		// ARRANGE
+		User user = new User("emailAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"lastNameAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"firstNameAddMoneyOnThePayMyBuddyAccountFromBankAccount", "passwordNotEncrypted", 20.0, null, null,
+				null);
+		BankAccount bankAccount = new BankAccount("IBANAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"descriptionAddMoneyOnThePayMyBuddyAccountFromBankAccount");
+		Double amountTransfered = 10.0;
+		user.setBankAccount(bankAccount);
+		Optional<User> userOptional = Optional.of(user);
+		Optional<BankAccount> bankAccountOptional = Optional.of(bankAccount);
+
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
+		when(bankAccountRepository.findByIBAN(bankAccount.getIBAN())).thenReturn(bankAccountOptional);
+		when(userRepository.save(user)).thenReturn(user);
+
+		// ACT
+		payMyBuddyServiceImpl.transfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount(user, bankAccount, amountTransfered);
+
+		// ASSERT
+		verify(userRepository, times(1)).findByEmail(user.getEmail());
+		verify(bankAccountRepository, times(1)).findByIBAN(bankAccount.getIBAN());
+		verify(userRepository, times(1)).save(user);
+	}
+
+	@Test
+	public void givenTransferingMoneyOnTheBankAccountWithAWrongProvidedUser_whenTransfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount_thenItDoesNotTransfertTheMoney() {
+		// ARRANGE
+		User user = new User("emailAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"lastNameAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"firstNameAddMoneyOnThePayMyBuddyAccountFromBankAccount", "passwordNotEncrypted", 20.0, null, null,
+				null);
+		BankAccount bankAccount = new BankAccount("IBANAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"descriptionAddMoneyOnThePayMyBuddyAccountFromBankAccount");
+		Double amountTransfered = 10.0;
+		Optional<BankAccount> bankAccountOptional = Optional.of(bankAccount);
+
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+		when(bankAccountRepository.findByIBAN(bankAccount.getIBAN())).thenReturn(bankAccountOptional);
+		when(userRepository.save(user)).thenReturn(user);
+
+		// ACT
+		// In the assert, because it throw the exception (that is what it is tested) but
+		// then it fail the test.
+
+		// ASSERT
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl
+				.transfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount(user, bankAccount, amountTransfered));
+		verify(userRepository, times(1)).findByEmail(user.getEmail());
+		verify(bankAccountRepository, times(1)).findByIBAN(bankAccount.getIBAN());
+		verify(userRepository, times(0)).save(user);
+	}
+
+	@Test
+	public void givenTransferingMoneyOnTheBankAccountWithAWrongProvidedBankAccount_whenTransfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount_thenItDoesNotTransfertTheMoney() {
+		// ARRANGE
+		User user = new User("emailAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"lastNameAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"firstNameAddMoneyOnThePayMyBuddyAccountFromBankAccount", "passwordNotEncrypted", 20.0, null, null,
+				null);
+		BankAccount bankAccount = new BankAccount("IBANAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"descriptionAddMoneyOnThePayMyBuddyAccountFromBankAccount");
+		Double amountTransfered = 10.0;
+		Optional<User> userOptional = Optional.of(user);
+
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
+		when(bankAccountRepository.findByIBAN(bankAccount.getIBAN())).thenReturn(Optional.empty());
+		when(userRepository.save(user)).thenReturn(user);
+
+		// ACT
+		// In the assert, because it throw the exception (that is what it is tested) but
+		// then it fail the test.
+
+		// ASSERT
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl
+				.transfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount(user, bankAccount, amountTransfered));
+		verify(userRepository, times(1)).findByEmail(user.getEmail());
+		verify(bankAccountRepository, times(1)).findByIBAN(bankAccount.getIBAN());
+		verify(userRepository, times(0)).save(user);
+	}
+
+	@Test
+	public void givenTransferingMoneyOnTheBankAccountWithANotAssociatedBankAccount_whenTransfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount_thenItDoesNotTransfertTheMoney() {
+		// ARRANGE
+		BankAccount bankAccountNotAssociated = new BankAccount("Void", "Void");
+		BankAccount bankAccountAssociated = new BankAccount("IBANAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"descriptionAddMoneyOnThePayMyBuddyAccountFromBankAccount");
+		User user = new User("emailAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"lastNameAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"firstNameAddMoneyOnThePayMyBuddyAccountFromBankAccount", "passwordNotEncrypted", 20.0,
+				bankAccountAssociated, null, null);
+		Double amountTransfered = 10.0;
+		bankAccountAssociated.setId(1);
+		bankAccountNotAssociated.setId(2);
+
+		Optional<User> userOptional = Optional.of(user);
+		Optional<BankAccount> bankAccountOptional = Optional.of(bankAccountNotAssociated);
+
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
+		when(bankAccountRepository.findByIBAN(bankAccountNotAssociated.getIBAN())).thenReturn(bankAccountOptional);
+		when(userRepository.save(user)).thenReturn(user);
+
+		// ACT
+		// In the assert, because it throw the exception (that is what it is tested) but
+		// then it fail the test.
+
+		// ASSERT
+		assertThrows(NoSuchElementException.class, () -> payMyBuddyServiceImpl
+				.transfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount(user, bankAccountNotAssociated, amountTransfered));
+		verify(userRepository, times(1)).findByEmail(user.getEmail());
+		verify(bankAccountRepository, times(1)).findByIBAN(bankAccountNotAssociated.getIBAN());
+		verify(userRepository, times(0)).save(user);
+	}
+
+	@Test
+	public void givenTransferingMoneyOnTheBankAccountWithNotEnoughMoney_whenTransfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount_thenItDoesNotTransfertTheMoney() {
+		// ARRANGE
+		BankAccount bankAccountAssociated = new BankAccount("IBANAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"descriptionAddMoneyOnThePayMyBuddyAccountFromBankAccount");
+		User user = new User("emailAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"lastNameAddMoneyOnThePayMyBuddyAccountFromBankAccount",
+				"firstNameAddMoneyOnThePayMyBuddyAccountFromBankAccount", "passwordNotEncrypted", 20.0,
+				bankAccountAssociated, null, null);
+		Double amountTransfered = 100.0;
+
+		Optional<User> userOptional = Optional.of(user);
+		Optional<BankAccount> bankAccountOptional = Optional.of(bankAccountAssociated);
+
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(userOptional);
+		when(bankAccountRepository.findByIBAN(bankAccountAssociated.getIBAN())).thenReturn(bankAccountOptional);
+		when(userRepository.save(user)).thenReturn(user);
+
+		// ACT
+		// In the assert, because it throw the exception (that is what it is tested) but
+		// then it fail the test.
+
+		// ASSERT
+		assertThrows(IllegalArgumentException.class, () -> payMyBuddyServiceImpl
+				.transfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount(user, bankAccountAssociated, amountTransfered));
+		verify(userRepository, times(1)).findByEmail(user.getEmail());
+		verify(bankAccountRepository, times(1)).findByIBAN(bankAccountAssociated.getIBAN());
+		verify(userRepository, times(0)).save(user);
+	}
 }

@@ -28,4 +28,7 @@ public interface PayMyBuddyService {
 
 	void addMoneyOnThePayMyBuddyAccountFromBankAccount(User user, BankAccount bankAccount, Double amountTransfered);
 
+	void transfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount(User user, BankAccount bankAccount,
+			Double amountTransfered);
+
 }

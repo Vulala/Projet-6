@@ -265,4 +265,46 @@ public class PayMyBuddyServiceImpl implements PayMyBuddyService {
 		userRepository.save(user);
 	}
 
+	/**
+	 * Method used to transfert money from the user's paymybuddy account to his bank
+	 * account. <br>
+	 * <br>
+	 * It firstly verify that both the user and the bank account are present in the
+	 * database. <br>
+	 * Then it verify that the provided bank account is associated to the current
+	 * user and that he own the amount transfered. <br>
+	 * Then it proceed if all the conditions are set to true; the user's money is
+	 * updated in the database table. <be>
+	 * 
+	 * @param user             : transfering money
+	 * @param bankAccount      : to send money
+	 * @param amountTransfered : from the paymybuddy account to the user's
+	 *                         bankAccount
+	 */
+	@Override
+	public void transfertMoneyFromThePayMyBuddyAccountToTheUserBankAccount(User user, BankAccount bankAccount,
+			Double amountTransfered) {
+		Optional<User> userCheck = userRepository.findByEmail(user.getEmail());
+		Optional<BankAccount> bankAccountCheck = bankAccountRepository.findByIBAN(bankAccount.getIBAN());
+
+		if (!userCheck.isPresent()) {
+			throw new NoSuchElementException("The provided User: << " + user + " >> cannot be found.");
+		}
+		if (!bankAccountCheck.isPresent()) {
+			throw new NoSuchElementException("The provided Bank account: << " + bankAccount + " >> cannot be found.");
+		}
+		if (!userCheck.get().getBankAccount().equals(bankAccount)) {
+			throw new NoSuchElementException("The provided Bank account: << " + bankAccount
+					+ " >> is not associated to this: " + user + " account.");
+		}
+		if (userCheck.get().getMoneyAvailable() < amountTransfered) {
+			throw new IllegalArgumentException(
+					"You do not own enough money on your account to afford the specified request: << "
+							+ amountTransfered + " >>");
+		}
+
+		user.setMoneyAvailable(user.getMoneyAvailable() - amountTransfered);
+		userRepository.save(user);
+	}
+
 }
