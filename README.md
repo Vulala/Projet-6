@@ -7,7 +7,7 @@ Database Schema :
 
 Class Diagram :
 
-![Class Diagram 1](https://user-images.githubusercontent.com/57904259/101612501-fe920b00-3a0a-11eb-940b-244916111e84.png)
+![Class Diagram 1](https://user-images.githubusercontent.com/57904259/102075496-9ecea200-3e06-11eb-9c69-3e59cf134ccb.png)
 
 ![Class Diagram 2](https://user-images.githubusercontent.com/57904259/101612504-fe920b00-3a0a-11eb-91a8-a0e79ac176f9.png)
 
